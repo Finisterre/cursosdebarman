@@ -64,6 +64,35 @@ export async function getCategoryById(id: string): Promise<Category | null> {
   return mapCategory(data as CategoryRow);
 }
 
+export async function getCategoryBySlug(slug: string): Promise<Category | null> {
+  const { data, error } = await supabaseServer
+    .from("categories")
+    .select("id, name, slug, description, parent_id, is_active")
+    .eq("slug", slug)
+    .single();
+
+  if (error || !data) {
+    return null;
+  }
+
+  return mapCategory(data as CategoryRow);
+}
+
+export async function getRootCategories(): Promise<Category[]> {
+  const { data, error } = await supabaseServer
+    .from("categories")
+    .select("id, name, slug, description, parent_id, is_active")
+    .is("parent_id", null)
+    .eq("is_active", true)
+    .order("name", { ascending: true });
+
+  if (error || !data) {
+    return [];
+  }
+
+  return data.map((row) => mapCategory(row as CategoryRow));
+}
+
 export async function getCategoriesTree(): Promise<Category[]> {
   const categories = await getCategories();
   const map = new Map<string, Category>();
@@ -86,5 +115,45 @@ export async function getCategoriesTree(): Promise<Category[]> {
   });
 
   return sortCategories(roots);
+}
+
+function findCategoryInTree(
+  categories: Category[],
+  slug: string
+): Category | null {
+  for (const category of categories) {
+    if (category.slug === slug) {
+      return category;
+    }
+    if (category.children && category.children.length > 0) {
+      const found = findCategoryInTree(category.children, slug);
+      if (found) {
+        return found;
+      }
+    }
+  }
+  return null;
+}
+
+function collectCategoryIds(category: Category): string[] {
+  const ids = [category.id];
+  if (category.children && category.children.length > 0) {
+    category.children.forEach((child) => {
+      ids.push(...collectCategoryIds(child));
+    });
+  }
+  return ids;
+}
+
+export async function getCategoryDescendantsBySlug(slug: string): Promise<{
+  category: Category | null;
+  ids: string[];
+}> {
+  const tree = await getCategoriesTree();
+  const category = findCategoryInTree(tree, slug);
+  if (!category) {
+    return { category: null, ids: [] };
+  }
+  return { category, ids: collectCategoryIds(category) };
 }
 

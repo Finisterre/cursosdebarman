@@ -10,6 +10,7 @@ type ProductPayload = {
   description: string;
   image_url?: string;
   category_id?: string | null;
+  featured?: boolean;
 };
 
 export async function POST(request: Request) {
@@ -33,7 +34,8 @@ export async function POST(request: Request) {
       slug: parsed.data.slug,
       description: parsed.data.description,
       image_url: payload.image_url ?? null,
-      category_id: categoryId
+      category_id: categoryId,
+      featured: parsed.data.featured ?? false
     })
     .select("id")
     .single();
@@ -73,7 +75,8 @@ export async function PUT(request: Request) {
       slug: parsed.data.slug,
       description: parsed.data.description,
       image_url: payload.image_url ?? undefined,
-      category_id: categoryId ?? null
+      category_id: categoryId ?? null,
+      featured: parsed.data.featured ?? false
     })
     .eq("id", payload.id);
 

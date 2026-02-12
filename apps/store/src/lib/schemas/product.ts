@@ -5,7 +5,8 @@ export const productSchema = z.object({
   price: z.coerce.number().min(1, "Precio requerido"),
   slug: z.string().min(2, "Slug requerido"),
   description: z.string().min(10, "Descripción requerida"),
-  category_id: z.string().optional().or(z.literal("")).nullable()
+  category_id: z.string().optional().or(z.literal("")).nullable(),
+  featured: z.boolean().optional().default(false)
 });
 
 export type ProductFormValues = z.infer<typeof productSchema>;

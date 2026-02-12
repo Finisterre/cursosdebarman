@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { useForm } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import type { ProductFormValues } from "@/lib/schemas/product";
 import { productSchema } from "@/lib/schemas/product";
@@ -9,6 +9,7 @@ import type { Category } from "@/types";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "@/components/ui/use-toast";
 import { uploadProductImage } from "@/lib/uploadProductImage";
@@ -57,7 +58,8 @@ export function ProductForm({
       price: 0,
       slug: "",
       description: "",
-      category_id: ""
+      category_id: "",
+      featured: false
     }
   });
 
@@ -180,6 +182,19 @@ export function ProductForm({
             </option>
           ))}
         </select>
+      </div>
+      <div className="flex items-center justify-between rounded-md border border-input bg-background px-3 py-2">
+        <div>
+          <Label className="text-sm font-medium">Destacado</Label>
+          <p className="text-xs text-muted-foreground">Se muestra en la portada.</p>
+        </div>
+        <Controller
+          name="featured"
+          control={form.control}
+          render={({ field }) => (
+            <Switch checked={field.value} onCheckedChange={field.onChange} />
+          )}
+        />
       </div>
       <div className="space-y-2">
         <Label htmlFor="description">Descripción</Label>

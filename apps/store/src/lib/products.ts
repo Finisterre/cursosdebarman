@@ -88,3 +88,35 @@ export async function getProductById(id: string): Promise<Product | null> {
   return mapProduct(data as ProductRow);
 }
 
+export async function getProductsByCategoryId(categoryId: string): Promise<Product[]> {
+  const { data, error } = await supabaseServer
+    .from("products")
+    .select("id, name, slug, description, price, image_url, featured, category_id")
+    .eq("category_id", categoryId)
+    .order("name");
+
+  if (error || !data) {
+    return [];
+  }
+
+  return data.map((row) => mapProduct(row as ProductRow));
+}
+
+export async function getProductsByCategoryIds(categoryIds: string[]): Promise<Product[]> {
+  if (categoryIds.length === 0) {
+    return [];
+  }
+
+  const { data, error } = await supabaseServer
+    .from("products")
+    .select("id, name, slug, description, price, image_url, featured, category_id")
+    .in("category_id", categoryIds)
+    .order("name");
+
+  if (error || !data) {
+    return [];
+  }
+
+  return data.map((row) => mapProduct(row as ProductRow));
+}
+

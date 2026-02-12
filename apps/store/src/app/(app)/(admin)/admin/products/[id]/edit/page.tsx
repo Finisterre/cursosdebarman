@@ -32,7 +32,8 @@ export default async function EditProductPage({ params }: EditProductPageProps) 
           price: product.price,
           slug: product.slug,
           description: product.description,
-          category_id: product.category_id ?? ""
+          category_id: product.category_id ?? "",
+          featured: product.featured ?? false
         }}
         initialImageUrl={product.image}
         categories={categories}
