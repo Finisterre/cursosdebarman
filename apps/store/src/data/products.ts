@@ -11,8 +11,8 @@ export const products: Product[] = [
     image: "https://images.unsplash.com/photo-1542291026-7eec264c27ff",
     featured: true,
     variants: [
-      { id: "var_1", productId: "prod_1", name: "Negro", price: 78000, stock: 12 },
-      { id: "var_2", productId: "prod_1", name: "Gris", price: 78000, stock: 8 }
+      { id: "var_1", productId: "prod_1", name: "Color", value: "Negro", price: 78000, stock: 12 },
+      { id: "var_2", productId: "prod_1", name: "Color", value: "Gris", price: 78000, stock: 8 }
     ]
   },
   {
