@@ -9,6 +9,7 @@ type ProductRow = {
   price: number;
   image_url: string | null;
   featured: boolean | null;
+  category_id: string | null;
 };
 
 const fallbackImage = "https://images.unsplash.com/photo-1505740420928-5e560c06d30e";
@@ -21,21 +22,24 @@ function mapProduct(row: ProductRow): Product {
     description: row.description ?? "",
     price: row.price,
     image: row.image_url ?? fallbackImage,
-    featured: row.featured ?? false
+    featured: row.featured ?? false,
+    category_id: row.category_id ?? null
   };
 }
 
 export async function getProducts(): Promise<Product[]> {
   const { data, error } = await supabaseServer
     .from("products")
-    .select("id, name, slug, description, price, image_url, featured")
+    .select("id, name, slug, description, price, image_url, featured, category_id")
     .order("name");
 
-  console.log("Supabase products response", { data, error });
+  console.log("Supabase getProducts", { data, error });
 
   if (error || !data) {
     return [];
   }
+
+  console.log("Get products", data);
 
   return data.map((row) => mapProduct(row as ProductRow));
 }
@@ -43,11 +47,9 @@ export async function getProducts(): Promise<Product[]> {
 export async function getFeaturedProducts(): Promise<Product[]> {
   const { data, error } = await supabaseServer
     .from("products")
-    .select("id, name, slug, description, price, image_url, featured")
+    .select("id, name, slug, description, price, image_url, featured, category_id")
     .eq("featured", true)
     .order("name");
-
-  console.log("Supabase featured products response", { data, error });
 
   if (error || !data) {
     return [];
@@ -59,15 +61,15 @@ export async function getFeaturedProducts(): Promise<Product[]> {
 export async function getProductBySlug(slug: string): Promise<Product | null> {
   const { data, error } = await supabaseServer
     .from("products")
-    .select("id, name, slug, description, price, image_url, featured")
+    .select("id, name, slug, description, price, image_url, featured, category_id")
     .eq("slug", slug)
     .single();
-
-  console.log("Supabase product by slug response", { slug, data, error });
 
   if (error || !data) {
     return null;
   }
+
+
 
   return mapProduct(data as ProductRow);
 }
@@ -75,11 +77,9 @@ export async function getProductBySlug(slug: string): Promise<Product | null> {
 export async function getProductById(id: string): Promise<Product | null> {
   const { data, error } = await supabaseServer
     .from("products")
-    .select("id, name, slug, description, price, image_url, featured")
+    .select("id, name, slug, description, price, image_url, featured, category_id")
     .eq("id", id)
     .single();
-
-  console.log("Supabase product by id response", { id, data, error });
 
   if (error || !data) {
     return null;

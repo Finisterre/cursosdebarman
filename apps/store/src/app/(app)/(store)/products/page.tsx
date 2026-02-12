@@ -1,4 +1,4 @@
-import { getProducts } from "@/lib/supabase/queries/products";
+import { getProducts } from "@/lib/products";
 import { ProductList } from "@/components/store/product-list";
 
 export const revalidate = 0;

@@ -9,6 +9,7 @@ type ProductPayload = {
   slug: string;
   description: string;
   image_url?: string;
+  category_id?: string | null;
 };
 
 export async function POST(request: Request) {
@@ -19,6 +20,11 @@ export async function POST(request: Request) {
     return NextResponse.json({ ok: false, message: "Datos inválidos" }, { status: 400 });
   }
 
+  const categoryId =
+    typeof payload.category_id === "string" && payload.category_id.length > 0
+      ? payload.category_id
+      : null;
+
   const { data, error } = await supabaseAdmin
     .from("products")
     .insert({
@@ -26,7 +32,8 @@ export async function POST(request: Request) {
       price: parsed.data.price,
       slug: parsed.data.slug,
       description: parsed.data.description,
-      image_url: payload.image_url ?? null
+      image_url: payload.image_url ?? null,
+      category_id: categoryId
     })
     .select("id")
     .single();
@@ -53,6 +60,11 @@ export async function PUT(request: Request) {
     return NextResponse.json({ ok: false, message: "Datos inválidos" }, { status: 400 });
   }
 
+  const categoryId =
+    typeof payload.category_id === "string" && payload.category_id.length > 0
+      ? payload.category_id
+      : null;
+
   const { error } = await supabaseAdmin
     .from("products")
     .update({
@@ -60,7 +72,8 @@ export async function PUT(request: Request) {
       price: parsed.data.price,
       slug: parsed.data.slug,
       description: parsed.data.description,
-      image_url: payload.image_url ?? undefined
+      image_url: payload.image_url ?? undefined,
+      category_id: categoryId ?? null
     })
     .eq("id", payload.id);
 

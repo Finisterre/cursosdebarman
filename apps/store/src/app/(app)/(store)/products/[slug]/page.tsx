@@ -1,5 +1,5 @@
 import { notFound } from "next/navigation";
-import { getProductBySlug } from "@/lib/supabase/queries/products";
+import { getProductBySlug } from "@/lib/products";
 import { ProductGallery } from "@/components/store/product-gallery";
 import { AddToCartButton } from "@/components/store/add-to-cart-button";
 import { Badge } from "@/components/ui/badge";

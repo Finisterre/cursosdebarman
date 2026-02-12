@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { getFeaturedProducts } from "@/lib/supabase/queries/products";
+import { getFeaturedProducts } from "@/lib/products";
 import { ProductList } from "@/components/store/product-list";
 import { Button } from "@/components/ui/button";
 

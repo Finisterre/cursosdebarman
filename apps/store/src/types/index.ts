@@ -6,6 +6,19 @@ export type ProductVariant = {
   stock: number;
 };
 
+export type Category = {
+  id: string;
+  name: string;
+  slug: string;
+  description?: string;
+  parent_id?: string | null;
+  is_active: boolean;
+  position?: number;
+  children?: Category[];
+};
+
+
+
 export type Product = {
   id: string;
   slug: string;
@@ -14,6 +27,8 @@ export type Product = {
   description: string;
   image: string;
   featured?: boolean;
+  category_id?: string | null;
+  category?: Category;
   variants?: ProductVariant[];
 };
 

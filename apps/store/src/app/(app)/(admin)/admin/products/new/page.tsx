@@ -1,6 +1,10 @@
 import { ProductForm } from "@/components/admin/product-form";
+import { getCategoriesTree } from "@/lib/categories";
 
-export default function NewProductPage() {
+export const revalidate = 0;
+
+export default async function NewProductPage() {
+  const categories = await getCategoriesTree();
   return (
     <div className="space-y-6">
       <div>
@@ -9,7 +13,7 @@ export default function NewProductPage() {
           Formulario base listo para conectar con Supabase.
         </p>
       </div>
-      <ProductForm />
+      <ProductForm categories={categories} />
     </div>
   );
 }

@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation";
-import { getProductById } from "@/lib/supabase/queries/products";
+import { getProductById } from "@/lib/products";
+import { getCategoriesTree } from "@/lib/categories";
 import { ProductForm } from "@/components/admin/product-form";
 
 export const revalidate = 0;
@@ -9,7 +10,10 @@ type EditProductPageProps = {
 };
 
 export default async function EditProductPage({ params }: EditProductPageProps) {
-  const product = await getProductById(params.id);
+  const [product, categories] = await Promise.all([
+    getProductById(params.id),
+    getCategoriesTree()
+  ]);
 
   if (!product) {
     notFound();
@@ -27,9 +31,11 @@ export default async function EditProductPage({ params }: EditProductPageProps) 
           name: product.name,
           price: product.price,
           slug: product.slug,
-          description: product.description
+          description: product.description,
+          category_id: product.category_id ?? ""
         }}
         initialImageUrl={product.image}
+        categories={categories}
       />
     </div>
   );

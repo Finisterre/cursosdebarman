@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { getProducts } from "@/lib/supabase/queries/products";
+import { getProducts } from "@/lib/products";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 
@@ -7,6 +7,8 @@ export const revalidate = 0;
 
 export default async function AdminProductsPage() {
   const products = await getProducts();
+
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">

@@ -1,10 +1,11 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import type { ProductFormValues } from "@/lib/schemas/product";
 import { productSchema } from "@/lib/schemas/product";
+import type { Category } from "@/types";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -16,21 +17,47 @@ type ProductFormProps = {
   initialValues?: ProductFormValues;
   productId?: string;
   initialImageUrl?: string | null;
+  categories: Category[];
 };
 
-export function ProductForm({ initialValues, productId, initialImageUrl }: ProductFormProps) {
+type CategoryOption = {
+  id: string;
+  label: string;
+  depth: number;
+};
+
+function flattenCategories(categories: Category[], depth = 0): CategoryOption[] {
+  const result: CategoryOption[] = [];
+  categories.forEach((category) => {
+    const prefix = depth > 0 ? `${"-- ".repeat(depth)}` : "";
+    result.push({ id: category.id, label: `${prefix}${category.name}`, depth });
+    if (category.children && category.children.length > 0) {
+      result.push(...flattenCategories(category.children, depth + 1));
+    }
+  });
+  return result;
+}
+
+export function ProductForm({
+  initialValues,
+  productId,
+  initialImageUrl,
+  categories
+}: ProductFormProps) {
   const [statusMessage, setStatusMessage] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string>(initialImageUrl ?? "");
+  const categoryOptions = useMemo(() => flattenCategories(categories), [categories]);
   const form = useForm<ProductFormValues>({
     resolver: zodResolver(productSchema),
     defaultValues: initialValues ?? {
       name: "",
       price: 0,
       slug: "",
-      description: ""
+      description: "",
+      category_id: ""
     }
   });
 
@@ -138,6 +165,21 @@ export function ProductForm({ initialValues, productId, initialImageUrl }: Produ
         {form.formState.errors.slug && (
           <p className="text-sm text-destructive">{form.formState.errors.slug.message}</p>
         )}
+      </div>
+      <div className="space-y-2">
+        <Label htmlFor="category_id">Categoría</Label>
+        <select
+          id="category_id"
+          className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
+          {...form.register("category_id")}
+        >
+          <option value="">Sin categoría</option>
+          {categoryOptions.map((category) => (
+            <option key={category.id} value={category.id}>
+              {category.label}
+            </option>
+          ))}
+        </select>
       </div>
       <div className="space-y-2">
         <Label htmlFor="description">Descripción</Label>
