@@ -74,17 +74,20 @@ export async function getAllVariantOptions(): Promise<VariantOption[]> {
   return (data ?? []).map((r) => mapVariantOption(r as VariantOptionRow));
 }
 
-type ProductVariantJoinRow = {
-  id: string;
-  product_id: string;
-  variant_option_id: string;
-  price: number;
-  stock: number;
-  variant_options: {
-    value: string;
-    variant_types: { name: string } | null;
-  } | null;
+type VariantOptionJoin = {
+  value: string;
+  variant_types: { name: string } | null;
 };
+
+function parseVariantOption(
+  opt: VariantOptionJoin | VariantOptionJoin[] | null | undefined
+): { name: string; value: string } {
+  const single = Array.isArray(opt) ? opt[0] : opt;
+  return {
+    name: single?.variant_types?.name ?? "",
+    value: single?.value ?? "",
+  };
+}
 
 export async function getProductVariants(productId: string): Promise<ProductVariant[]> {
   const { data, error } = await supabaseServer
@@ -106,11 +109,17 @@ export async function getProductVariants(productId: string): Promise<ProductVari
     return [];
   }
 
-  const rows = (data ?? []) as ProductVariantJoinRow[];
+  const rows = (data ?? []) as unknown as Array<{
+    id: string;
+    product_id: string;
+    variant_option_id: string;
+    price: number;
+    stock: number;
+    variant_options?: VariantOptionJoin | VariantOptionJoin[] | null;
+  }>;
+
   return rows.map((row) => {
-    const opt = row.variant_options;
-    const name = opt?.variant_types?.name ?? "";
-    const value = opt?.value ?? "";
+    const { name, value } = parseVariantOption(row.variant_options);
     return {
       id: row.id,
       productId: row.product_id,
@@ -146,11 +155,17 @@ export async function getProductVariantsForAdmin(
     return [];
   }
 
-  const rows = (data ?? []) as ProductVariantJoinRow[];
+  const rows = (data ?? []) as unknown as Array<{
+    id: string;
+    product_id: string;
+    variant_option_id: string;
+    price: number;
+    stock: number;
+    variant_options?: VariantOptionJoin | VariantOptionJoin[] | null;
+  }>;
+
   return rows.map((row) => {
-    const opt = row.variant_options;
-    const name = opt?.variant_types?.name ?? "";
-    const value = opt?.value ?? "";
+    const { name, value } = parseVariantOption(row.variant_options);
     return {
       id: row.id,
       productId: row.product_id,
