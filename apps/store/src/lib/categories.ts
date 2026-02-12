@@ -41,7 +41,6 @@ export async function getCategories(): Promise<Category[]> {
     .select("id, name, slug, description, parent_id, is_active")
     .order("name", { ascending: true });
 
-  console.log("Supabase categories response", { data, error });
 
   if (error || !data) {
     return [];

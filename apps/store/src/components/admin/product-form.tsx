@@ -147,28 +147,42 @@ export function ProductForm({
         }
       })}
     >
-      <div className="space-y-2">
+      <div className="flex flex-row gap-8">
+      <div className="space-y-2 w-1/2">
         <Label htmlFor="name">Nombre</Label>
         <Input id="name" {...form.register("name")} />
         {form.formState.errors.name && (
           <p className="text-sm text-destructive">{form.formState.errors.name.message}</p>
         )}
       </div>
-      <div className="space-y-2">
+      <div className="space-y-2 w-1/4">
         <Label htmlFor="price">Precio</Label>
         <Input id="price" type="number" {...form.register("price")} />
         {form.formState.errors.price && (
           <p className="text-sm text-destructive">{form.formState.errors.price.message}</p>
         )}
       </div>
-      <div className="space-y-2">
+      <div className="space-y-2 w-1/4">
         <Label htmlFor="slug">Slug</Label>
         <Input id="slug" {...form.register("slug")} />
         {form.formState.errors.slug && (
           <p className="text-sm text-destructive">{form.formState.errors.slug.message}</p>
         )}
       </div>
+      </div>
+ 
+     
+  
       <div className="space-y-2">
+        <Label htmlFor="description">Descripción</Label>
+        <Textarea id="description" {...form.register("description")} />
+        {form.formState.errors.description && (
+          <p className="text-sm text-destructive">{form.formState.errors.description.message}</p>
+        )}
+      </div>
+
+      <div className="flex flex-row gap-8">
+      <div className="space-y-2 w-1/2">
         <Label htmlFor="category_id">Categoría</Label>
         <select
           id="category_id"
@@ -183,8 +197,8 @@ export function ProductForm({
           ))}
         </select>
       </div>
-      <div className="flex items-center justify-between rounded-md border border-input bg-background px-3 py-2">
-        <div>
+      <div className="space-y-2 w-1/2">
+      <div>
           <Label className="text-sm font-medium">Destacado</Label>
           <p className="text-xs text-muted-foreground">Se muestra en la portada.</p>
         </div>
@@ -196,14 +210,10 @@ export function ProductForm({
           )}
         />
       </div>
-      <div className="space-y-2">
-        <Label htmlFor="description">Descripción</Label>
-        <Textarea id="description" {...form.register("description")} />
-        {form.formState.errors.description && (
-          <p className="text-sm text-destructive">{form.formState.errors.description.message}</p>
-        )}
       </div>
-      <div className="space-y-2">
+
+      <div className="flex flex-row gap-8">
+      <div className="space-y-2 w-1/2">
         <Label htmlFor="image">Imagen</Label>
         <Input
           id="image"
@@ -218,9 +228,11 @@ export function ProductForm({
           <img
             src={previewUrl}
             alt="Vista previa"
-            className="w-1/2 rounded-md object-contain"
+            className="w-full rounded-md object-contain"
           />
         )}
+      </div>
+
       </div>
       <Button type="submit" disabled={isSubmitting}>
         {isSubmitting ? "Guardando..." : "Guardar"}

@@ -74,8 +74,10 @@ export function CategoryFilterView({ category, products }: CategoryFilterViewPro
           <h2 className="text-base font-semibold">{category.name}</h2>
         </div>
         <div className="space-y-2">
+        {options.length > 0 ? (
+          <>
           <p className="text-xs uppercase tracking-wide text-muted-foreground">Subcategorías</p>
-          {options.length > 0 ? (
+         
             <div className="space-y-2">
               {options.map((option) => (
                 <label key={option.id} className="flex items-center gap-2 text-sm">
@@ -93,8 +95,10 @@ export function CategoryFilterView({ category, products }: CategoryFilterViewPro
                 </label>
               ))}
             </div>
+            </>
           ) : (
-            <p className="text-sm text-muted-foreground">Sin subcategorías.</p>
+            ""
+        
           )}
         </div>
       </aside>

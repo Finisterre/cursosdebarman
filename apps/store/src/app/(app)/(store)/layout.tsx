@@ -12,7 +12,7 @@ export default async function StoreLayout({
 }) {
   const categories = await getRootCategories();
   return (
-    <div className="flex min-h-screen flex-col">
+    <div className="flex min-h-screen flex-col ">
       <Header categories={categories} />
       <main className="flex-1">
         <Container className="py-10">{children}</Container>

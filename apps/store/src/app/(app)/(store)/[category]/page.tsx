@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import { getCategoryDescendantsBySlug } from "@/lib/categories";
 import { getProductsByCategoryIds } from "@/lib/products";
 import { CategoryFilterView } from "@/components/store/category-filter-view";
+import { Breadcrumb } from "@/components/ui/breadcrumb";
 
 export const revalidate = 0;
 
@@ -18,5 +19,11 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
 
   const products = await getProductsByCategoryIds(ids);
 
-  return <CategoryFilterView category={category} products={products} />;
+  return (
+    <>
+    <Breadcrumb />
+    <CategoryFilterView category={category} products={products} />
+    </>
+  );
 }
+

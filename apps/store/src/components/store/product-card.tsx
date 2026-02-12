@@ -6,8 +6,8 @@ import { Button } from "@/components/ui/button";
 
 export function ProductCard({ product }: { product: Product }) {
   return (
-    <Card className="overflow-hidden">
-      <div className="relative h-56 w-full">
+    <Card className="flex h-full flex-col overflow-hidden">
+      <div className="relative h-56 w-full shrink-0">
         <Image
           src={product.image}
           alt={product.name}
@@ -16,17 +16,17 @@ export function ProductCard({ product }: { product: Product }) {
           sizes="(max-width: 768px) 100vw, 33vw"
         />
       </div>
-      <CardContent className="space-y-2">
+      <CardContent className="flex-1 py-4">
         <div className="flex items-center justify-between">
-          <h3 className="text-base font-semibold">{product.name}</h3>
+          <h3 className="text-base   font-semibold">{product.name}</h3>
           <span className="text-sm font-medium">${product.price.toLocaleString("es-AR")}</span>
         </div>
-        <p className="text-sm text-muted-foreground">{product.description}</p>
+        {/* <p className="text-sm text-muted-foreground">{product.description}</p> */}
       </CardContent>
-      <CardFooter className="justify-between">
-        <Button asChild variant="outline">
+      <CardFooter className="mt-auto justify-end">
+        {/* <Button asChild variant="outline">
           <Link href={`/products/${product.slug}`}>Ver detalle</Link>
-        </Button>
+        </Button> */}
         <Button asChild>
           <Link href={`/products/${product.slug}`}>Comprar</Link>
         </Button>

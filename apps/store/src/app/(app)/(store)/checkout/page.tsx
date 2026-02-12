@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Breadcrumb } from "@/components/ui/breadcrumb";
 
 export default function CheckoutPage() {
   const router = useRouter();
@@ -29,6 +30,7 @@ export default function CheckoutPage() {
 
   return (
     <div className="grid gap-8 lg:grid-cols-[1.1fr_0.9fr]">
+       
       <section className="space-y-6">
         <div>
           <h1 className="text-2xl font-semibold">Checkout</h1>

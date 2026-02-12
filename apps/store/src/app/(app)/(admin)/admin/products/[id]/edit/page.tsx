@@ -1,7 +1,13 @@
 import { notFound } from "next/navigation";
 import { getProductById } from "@/lib/products";
+import {
+  getVariantTypes,
+  getAllVariantOptions,
+  getProductVariantsForAdmin,
+} from "@/lib/variants";
 import { getCategoriesTree } from "@/lib/categories";
 import { ProductForm } from "@/components/admin/product-form";
+import { ProductVariantForm } from "@/components/admin/product-variant-form";
 
 export const revalidate = 0;
 
@@ -10,9 +16,13 @@ type EditProductPageProps = {
 };
 
 export default async function EditProductPage({ params }: EditProductPageProps) {
-  const [product, categories] = await Promise.all([
-    getProductById(params.id),
-    getCategoriesTree()
+  const { id } = params;
+  const [product, categories, variantTypes, variantOptions, variants] = await Promise.all([
+    getProductById(id),
+    getCategoriesTree(),
+    getVariantTypes(),
+    getAllVariantOptions(),
+    getProductVariantsForAdmin(id),
   ]);
 
   if (!product) {
@@ -20,13 +30,13 @@ export default async function EditProductPage({ params }: EditProductPageProps) 
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       <div>
         <h1 className="text-2xl font-semibold">Editar producto</h1>
         <p className="text-sm text-muted-foreground">Actualiza la información del producto.</p>
       </div>
       <ProductForm
-        productId={params.id}
+        productId={id}
         initialValues={{
           name: product.name,
           price: product.price,
@@ -38,6 +48,14 @@ export default async function EditProductPage({ params }: EditProductPageProps) 
         initialImageUrl={product.image}
         categories={categories}
       />
+      <div className="border-t pt-8">
+        <ProductVariantForm
+          productId={id}
+          variantTypes={variantTypes}
+          variantOptions={variantOptions}
+          initialVariants={variants}
+        />
+      </div>
     </div>
   );
 }

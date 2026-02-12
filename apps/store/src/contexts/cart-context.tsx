@@ -1,13 +1,13 @@
 "use client";
 
 import React, { createContext, useContext, useEffect, useMemo, useState } from "react";
-import type { CartItem, Product } from "@/types";
+import type { CartItem, Product, ProductVariant } from "@/types";
 
 type CartContextValue = {
   items: CartItem[];
-  addItem: (product: Product) => void;
-  removeItem: (productId: string) => void;
-  updateQuantity: (productId: string, quantity: number) => void;
+  addItem: (product: Product, selectedVariant?: ProductVariant | null) => void;
+  removeItem: (productId: string, variantId?: string | null) => void;
+  updateQuantity: (productId: string, quantity: number, variantId?: string | null) => void;
   clear: () => void;
   totalItems: number;
   subtotal: number;
@@ -33,26 +33,55 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     }
   }, [items]);
 
-  const addItem = (product: Product) => {
+  const addItem = (product: Product, selectedVariant?: ProductVariant | null) => {
+    const variantId = selectedVariant?.id ?? null;
+    const effectivePrice = selectedVariant ? selectedVariant.price : product.price;
     setItems((prev) => {
-      const existing = prev.find((item) => item.id === product.id);
+      const existing = prev.find(
+        (item) =>
+          item.id === product.id &&
+          (item.selectedVariant?.id ?? null) === variantId
+      );
       if (existing) {
         return prev.map((item) =>
-          item.id === product.id ? { ...item, quantity: item.quantity + 1 } : item
+          item.id === product.id && (item.selectedVariant?.id ?? null) === variantId
+            ? { ...item, quantity: item.quantity + 1 }
+            : item
         );
       }
-      return [...prev, { ...product, quantity: 1 }];
+      return [
+        ...prev,
+        {
+          ...product,
+          price: effectivePrice,
+          quantity: 1,
+          selectedVariant: selectedVariant ?? undefined,
+        },
+      ];
     });
   };
 
-  const removeItem = (productId: string) => {
-    setItems((prev) => prev.filter((item) => item.id !== productId));
+  const removeItem = (productId: string, variantId?: string | null) => {
+    setItems((prev) =>
+      prev.filter(
+        (item) =>
+          !(item.id === productId && (item.selectedVariant?.id ?? null) === (variantId ?? null))
+      )
+    );
   };
 
-  const updateQuantity = (productId: string, quantity: number) => {
+  const updateQuantity = (
+    productId: string,
+    quantity: number,
+    variantId?: string | null
+  ) => {
     const safeQuantity = Math.max(1, quantity);
     setItems((prev) =>
-      prev.map((item) => (item.id === productId ? { ...item, quantity: safeQuantity } : item))
+      prev.map((item) =>
+        item.id === productId && (item.selectedVariant?.id ?? null) === (variantId ?? null)
+          ? { ...item, quantity: safeQuantity }
+          : item
+      )
     );
   };
 

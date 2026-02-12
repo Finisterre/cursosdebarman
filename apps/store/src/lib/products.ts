@@ -1,4 +1,5 @@
 import { supabaseServer } from "@/lib/supabase/server";
+import { getProductVariants } from "@/lib/variants";
 import type { Product } from "@/types";
 
 type ProductRow = {
@@ -39,7 +40,6 @@ export async function getProducts(): Promise<Product[]> {
     return [];
   }
 
-  console.log("Get products", data);
 
   return data.map((row) => mapProduct(row as ProductRow));
 }
@@ -69,9 +69,9 @@ export async function getProductBySlug(slug: string): Promise<Product | null> {
     return null;
   }
 
-
-
-  return mapProduct(data as ProductRow);
+  const product = mapProduct(data as ProductRow);
+  const variants = await getProductVariants(product.id);
+  return { ...product, variants };
 }
 
 export async function getProductById(id: string): Promise<Product | null> {
@@ -85,7 +85,9 @@ export async function getProductById(id: string): Promise<Product | null> {
     return null;
   }
 
-  return mapProduct(data as ProductRow);
+  const product = mapProduct(data as ProductRow);
+  const variants = await getProductVariants(id);
+  return { ...product, variants };
 }
 
 export async function getProductsByCategoryId(categoryId: string): Promise<Product[]> {

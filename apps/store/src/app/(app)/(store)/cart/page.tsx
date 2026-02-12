@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useCart } from "@/contexts/cart-context";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Breadcrumb } from "@/components/ui/breadcrumb";
 
 export default function CartPage() {
   const { items, removeItem, updateQuantity, subtotal } = useCart();
@@ -22,7 +23,8 @@ export default function CartPage() {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-semibold">Carrito</h1>
+      <Breadcrumb root={{ label: "Inicio", href: "/" }} firstSegment={{ label: "Mi Carrito", href: "/cart" }} />
+      <h1 className="text-2xl font-semibold">Mi Carrito</h1>
       <Table>
         <TableHeader>
           <TableRow>
@@ -35,8 +37,15 @@ export default function CartPage() {
         </TableHeader>
         <TableBody>
           {items.map((item) => (
-            <TableRow key={item.id}>
-              <TableCell className="font-medium">{item.name}</TableCell>
+            <TableRow key={item.selectedVariant ? `${item.id}-${item.selectedVariant.id}` : item.id}>
+              <TableCell className="font-medium">
+                {item.name}
+                {item.selectedVariant && (
+                  <span className="ml-1 text-muted-foreground font-normal">
+                    · {item.selectedVariant.name}: {item.selectedVariant.value}
+                  </span>
+                )}
+              </TableCell>
               <TableCell>
                 <input
                   className="h-9 w-20 rounded-md border border-input bg-background px-2 text-sm"
@@ -44,7 +53,11 @@ export default function CartPage() {
                   min={1}
                   value={item.quantity}
                   onChange={(event) =>
-                    updateQuantity(item.id, Math.max(1, Number(event.target.value) || 1))
+                    updateQuantity(
+                      item.id,
+                      Math.max(1, Number(event.target.value) || 1),
+                      item.selectedVariant?.id
+                    )
                   }
                 />
               </TableCell>
@@ -53,7 +66,10 @@ export default function CartPage() {
                 ${(item.price * item.quantity).toLocaleString("es-AR")}
               </TableCell>
               <TableCell>
-                <Button variant="ghost" onClick={() => removeItem(item.id)}>
+                <Button
+                  variant="ghost"
+                  onClick={() => removeItem(item.id, item.selectedVariant?.id)}
+                >
                   Quitar
                 </Button>
               </TableCell>

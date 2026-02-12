@@ -2,8 +2,23 @@ export type ProductVariant = {
   id: string;
   productId: string;
   name: string;
+  value: string;
   price: number;
   stock: number;
+};
+
+export type VariantType = {
+  id: string;
+  name: string;
+  slug: string;
+  createdAt: string;
+};
+
+export type VariantOption = {
+  id: string;
+  variantTypeId: string;
+  value: string;
+  createdAt: string;
 };
 
 export type Category = {
@@ -34,6 +49,7 @@ export type Product = {
 
 export type CartItem = Product & {
   quantity: number;
+  selectedVariant?: ProductVariant;
 };
 
 export type Customer = {
