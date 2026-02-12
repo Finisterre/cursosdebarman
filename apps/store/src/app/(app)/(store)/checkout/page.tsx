@@ -81,7 +81,7 @@ export default function CheckoutPage() {
               }
 
               clear();
-              router.push(redirectUrl);
+              window.location.href = redirectUrl;
             } catch (error) {
               console.error("Error Mercado Pago", error);
               setErrorMessage("Ocurrió un error al iniciar el pago.");
