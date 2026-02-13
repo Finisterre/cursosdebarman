@@ -28,14 +28,7 @@ export function BannerImage({ banner, className }: { banner: Banner; className?:
     </>
   );
 
-  if (banner.link_url && !banner.title) {
-    return (
-      <Link href={banner.link_url as any} className="block relative overflow-hidden rounded-lg">
-        {content}
-      </Link>
-    );
-  }
-  if (banner.link_url && banner.link_text) {
+  if (banner.link_url) {
     return (
       <Link href={banner.link_url as any} className="block relative overflow-hidden rounded-lg">
         {content}
