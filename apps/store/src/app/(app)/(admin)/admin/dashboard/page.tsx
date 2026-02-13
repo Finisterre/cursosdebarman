@@ -3,6 +3,7 @@ import { getProducts } from "@/lib/products";
 import { getOrders } from "@/lib/orders";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { AdminBreadcrumb } from "@/components/layout/admin-breadcrumb";
 
 export const revalidate = 0;
 
@@ -12,6 +13,7 @@ export default async function AdminDashboardPage() {
 
   return (
     <div className="space-y-6">
+      <AdminBreadcrumb items={[{ label: "Dashboard" }]} />
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-semibold">Dashboard</h1>
         <Button asChild>

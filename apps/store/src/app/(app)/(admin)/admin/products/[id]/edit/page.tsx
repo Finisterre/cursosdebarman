@@ -9,6 +9,7 @@ import { ProductVariantsEditor } from "@/components/admin/product-variants-edito
 import { ProductVariantsPriceStockEditor } from "@/components/admin/product-variants-price-stock-editor";
 import { ProductImageGallery } from "@/components/admin/product-image-gallery";
 import { Button } from "@/components/ui/button";
+import { AdminBreadcrumb } from "@/components/layout/admin-breadcrumb";
 
 export const revalidate = 0;
 
@@ -39,6 +40,12 @@ export default async function EditProductPage({ params }: EditProductPageProps) 
 
   return (
     <div className="space-y-8">
+      <AdminBreadcrumb
+        items={[
+          { label: "Productos", href: "/admin/products" },
+          { label: "Editar producto" },
+        ]}
+      />
       <div>
         <h1 className="text-2xl font-semibold">Editar producto</h1>
         <p className="text-sm text-muted-foreground">Actualiza la información del producto.</p>

@@ -14,6 +14,7 @@ type BannerRow = {
   type: string;
   display_order: number;
   is_active: boolean;
+  show_title?: boolean;
   starts_at: string | null;
   ends_at: string | null;
   created_at: string;
@@ -33,6 +34,7 @@ function mapRow(row: BannerRow): Banner {
     type: row.type as Banner["type"],
     display_order: Number(row.display_order) ?? 0,
     is_active: Boolean(row.is_active),
+    show_title: row.show_title ?? true,
     starts_at: row.starts_at ?? null,
     ends_at: row.ends_at ?? null,
     created_at: row.created_at,
@@ -109,6 +111,7 @@ export async function updateBanner(
     type: Banner["type"];
     display_order: number;
     is_active: boolean;
+    show_title?: boolean;
     starts_at?: string | null;
     ends_at?: string | null;
   }
@@ -126,6 +129,7 @@ export async function updateBanner(
       type: input.type,
       display_order: input.display_order,
       is_active: input.is_active,
+      show_title: input.show_title ?? true,
       starts_at: input.starts_at ?? null,
       ends_at: input.ends_at ?? null,
       updated_at: new Date().toISOString()
@@ -151,6 +155,7 @@ export async function createBanner(input: {
   type: Banner["type"];
   display_order: number;
   is_active: boolean;
+  show_title?: boolean;
   starts_at?: string | null;
   ends_at?: string | null;
 }): Promise<{ ok: boolean; id?: string; error?: string }> {
@@ -167,6 +172,7 @@ export async function createBanner(input: {
       type: input.type,
       display_order: input.display_order,
       is_active: input.is_active,
+      show_title: input.show_title ?? true,
       starts_at: input.starts_at ?? null,
       ends_at: input.ends_at ?? null
     })

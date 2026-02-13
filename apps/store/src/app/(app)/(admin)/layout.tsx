@@ -1,16 +1,10 @@
-import { AdminHeader } from "@/components/layout/admin-header";
-import { Container } from "@/components/layout/container";
+import { AdminShell } from "@/components/layout/admin-shell";
 
 export default function AdminLayout({
   children
 }: {
   children: React.ReactNode;
 }) {
-  return (
-    <div className="bg-muted/40">
-      <AdminHeader />
-      <Container className="py-10">{children}</Container>
-    </div>
-  );
+  return <AdminShell>{children}</AdminShell>;
 }
 

@@ -4,6 +4,7 @@ import type { OrderStatus } from "@/types";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { formatDateTime } from "@/lib/utils";
+import { AdminBreadcrumb } from "@/components/layout/admin-breadcrumb";
 
 export const revalidate = 0;
 
@@ -23,6 +24,7 @@ export default async function AdminOrdersPage() {
 
   return (
     <div className="space-y-6">
+      <AdminBreadcrumb items={[{ label: "Pedidos" }]} />
       <div>
         <h1 className="text-2xl font-semibold">Pedidos</h1>
         <p className="text-sm text-muted-foreground">

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { bannerSchema, type BannerFormValues } from "@/lib/schemas/banner";
@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "@/components/ui/use-toast";
+import { uploadBannerImage } from "@/lib/uploadBannerImage";
 import type { Banner } from "@/types";
 
 const POSITION_OPTIONS: { value: Banner["position"]; label: string }[] = [
@@ -36,6 +37,7 @@ const defaultFormValues: BannerFormValues = {
   type: "image",
   display_order: 0,
   is_active: true,
+  show_title: true,
   starts_at: "",
   ends_at: ""
 };
@@ -55,6 +57,9 @@ export function BannerForm({
   updateBannerAction
 }: BannerFormProps) {
   const [errorMessage, setErrorMessage] = useState("");
+  const [uploadingImage, setUploadingImage] = useState<"main" | "mobile" | null>(null);
+  const mainInputRef = useRef<HTMLInputElement>(null);
+  const mobileInputRef = useRef<HTMLInputElement>(null);
   const isEdit = Boolean(bannerId && updateBannerAction);
 
   const form = useForm<BannerFormValues>({
@@ -104,16 +109,106 @@ export function BannerForm({
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="image_url">URL imagen *</Label>
-        <Input id="image_url" type="url" placeholder="https://..." {...form.register("image_url")} />
+        <Label>Imagen principal *</Label>
+        <input
+          ref={mainInputRef}
+          type="file"
+          accept="image/*"
+          className="block w-full text-sm text-muted-foreground file:mr-4 file:rounded-md file:border-0 file:bg-primary file:px-4 file:py-2 file:text-primary-foreground"
+          onChange={async (e) => {
+            const file = e.target.files?.[0];
+            if (!file) return;
+            setUploadingImage("main");
+            try {
+              const url = await uploadBannerImage(file);
+              form.setValue("image_url", url);
+              toast({ title: "Imagen subida correctamente." });
+            } catch (err) {
+              toast({
+                title: "Error al subir",
+                description: err instanceof Error ? err.message : "No se pudo subir la imagen.",
+                variant: "destructive",
+              });
+            } finally {
+              setUploadingImage(null);
+              e.target.value = "";
+            }
+          }}
+        />
+        {uploadingImage === "main" && (
+          <p className="text-sm text-muted-foreground">Subiendo imagen…</p>
+        )}
+        {form.watch("image_url") && (
+          <div className="mt-2">
+            <img
+              src={form.watch("image_url")}
+              alt="Vista previa"
+              className="h-32 w-auto rounded-md border object-cover"
+            />
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              className="mt-2"
+              onClick={() => mainInputRef.current?.click()}
+            >
+              Reemplazar
+            </Button>
+          </div>
+        )}
         {form.formState.errors.image_url && (
           <p className="text-sm text-destructive">{form.formState.errors.image_url.message}</p>
         )}
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="mobile_image_url">URL imagen móvil (opcional)</Label>
-        <Input id="mobile_image_url" type="url" placeholder="https://..." {...form.register("mobile_image_url")} />
+        <Label>Imagen móvil (opcional)</Label>
+        <input
+          ref={mobileInputRef}
+          type="file"
+          accept="image/*"
+          className="block w-full text-sm text-muted-foreground file:mr-4 file:rounded-md file:border-0 file:bg-primary file:px-4 file:py-2 file:text-primary-foreground"
+          onChange={async (e) => {
+            const file = e.target.files?.[0];
+            if (!file) return;
+            setUploadingImage("mobile");
+            try {
+              const url = await uploadBannerImage(file);
+              form.setValue("mobile_image_url", url);
+              toast({ title: "Imagen móvil subida correctamente." });
+            } catch (err) {
+              toast({
+                title: "Error al subir",
+                description: err instanceof Error ? err.message : "No se pudo subir la imagen.",
+                variant: "destructive",
+              });
+            } finally {
+              setUploadingImage(null);
+              e.target.value = "";
+            }
+          }}
+        />
+        {uploadingImage === "mobile" && (
+          <p className="text-sm text-muted-foreground">Subiendo imagen…</p>
+        )}
+        {form.watch("mobile_image_url") && (
+          <div className="mt-2">
+            <img
+              src={form.watch("mobile_image_url")}
+              alt="Vista previa móvil"
+              className="h-32 w-auto rounded-md border object-cover"
+            />
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              className="mt-2"
+              onClick={() => mobileInputRef.current?.click()}
+            >
+              Reemplazar
+            </Button>
+          </div>
+        )}
       </div>
 
       {(bannerType === "promo" || bannerType === "image" || bannerType === "video") && (
@@ -168,14 +263,25 @@ export function BannerForm({
             <p className="text-sm text-destructive">{form.formState.errors.display_order.message}</p>
           )}
         </div>
-        <div className="flex items-center gap-2 pt-8">
-          <input
-            type="checkbox"
-            id="is_active"
-            className="h-4 w-4 rounded border-input"
-            {...form.register("is_active")}
-          />
-          <Label htmlFor="is_active">Activo</Label>
+        <div className="flex flex-col gap-2 pt-8">
+          <div className="flex items-center gap-2">
+            <input
+              type="checkbox"
+              id="is_active"
+              className="h-4 w-4 rounded border-input"
+              {...form.register("is_active")}
+            />
+            <Label htmlFor="is_active">Activo</Label>
+          </div>
+          <div className="flex items-center gap-2">
+            <input
+              type="checkbox"
+              id="show_title"
+              className="h-4 w-4 rounded border-input"
+              {...form.register("show_title")}
+            />
+            <Label htmlFor="show_title">Mostrar título</Label>
+          </div>
         </div>
       </div>
 

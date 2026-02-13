@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Pencil } from "lucide-react";
 import { DeleteCategoryButton } from "@/components/admin/delete-category-button";
+import { AdminBreadcrumb } from "@/components/layout/admin-breadcrumb";
 
 export const revalidate = 0;
 
@@ -46,6 +47,7 @@ export default async function AdminCategoriesPage() {
 
   return (
     <div className="space-y-6">
+      <AdminBreadcrumb items={[{ label: "Categorías" }]} />
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-semibold">Categorías</h1>
         <Button asChild>

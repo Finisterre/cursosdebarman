@@ -1,14 +1,14 @@
 import { notFound } from "next/navigation";
-import Link from "next/link";
-import { Button } from "@/components/ui/button";
 import { getBannerById } from "@/lib/banners";
 import { BannerForm } from "@/components/admin/banner-form";
 import { updateBannerAction } from "./actions";
 import type { BannerFormValues } from "@/lib/schemas/banner";
+import type { Banner } from "@/types";
+import { AdminBreadcrumb } from "@/components/layout/admin-breadcrumb";
 
 export const revalidate = 0;
 
-function bannerToFormValues(banner: { title: string; subtitle?: string | null; image_url: string; mobile_image_url?: string | null; link_url?: string | null; link_text?: string | null; position: string; type: string; display_order: number; is_active: boolean; starts_at?: string | null; ends_at?: string | null }): BannerFormValues {
+function bannerToFormValues(banner: Banner): BannerFormValues {
   const startsAt = banner.starts_at ? banner.starts_at.slice(0, 16) : "";
   const endsAt = banner.ends_at ? banner.ends_at.slice(0, 16) : "";
   return {
@@ -18,10 +18,11 @@ function bannerToFormValues(banner: { title: string; subtitle?: string | null; i
     mobile_image_url: banner.mobile_image_url ?? "",
     link_url: banner.link_url ?? "",
     link_text: banner.link_text ?? "",
-    position: banner.position as BannerFormValues["position"],
-    type: banner.type as BannerFormValues["type"],
+    position: banner.position,
+    type: banner.type,
     display_order: banner.display_order,
     is_active: banner.is_active,
+    show_title: banner.show_title,
     starts_at: startsAt,
     ends_at: endsAt
   };
@@ -35,11 +36,12 @@ export default async function EditBannerPage({ params }: { params: { id: string 
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center gap-4">
-        <Button variant="ghost" size="sm" asChild>
-          <Link href="/admin/banners">← Banners</Link>
-        </Button>
-      </div>
+      <AdminBreadcrumb
+        items={[
+          { label: "Banners", href: "/admin/banners" },
+          { label: "Editar banner" },
+        ]}
+      />
       <div>
         <h1 className="text-2xl font-semibold">Editar banner</h1>
         <p className="text-sm text-muted-foreground">{banner.title}</p>

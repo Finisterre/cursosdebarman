@@ -1,18 +1,18 @@
 import { BannerForm } from "@/components/admin/banner-form";
 import { createBannerAction } from "./actions";
-import Link from "next/link";
-import { Button } from "@/components/ui/button";
+import { AdminBreadcrumb } from "@/components/layout/admin-breadcrumb";
 
 export const revalidate = 0;
 
 export default function NewBannerPage() {
   return (
     <div className="space-y-6">
-      <div className="flex items-center gap-4">
-        <Button variant="ghost" size="sm" asChild>
-          <Link href="/admin/banners">← Banners</Link>
-        </Button>
-      </div>
+      <AdminBreadcrumb
+        items={[
+          { label: "Banners", href: "/admin/banners" },
+          { label: "Nuevo banner" },
+        ]}
+      />
       <div>
         <h1 className="text-2xl font-semibold">Nuevo banner</h1>
         <p className="text-sm text-muted-foreground">

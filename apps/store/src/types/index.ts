@@ -110,6 +110,7 @@ export type StoreSettings = {
 export type Banner = {
   id: string;
   title: string;
+  show_title: boolean;
   subtitle?: string | null;
   image_url: string;
   mobile_image_url?: string | null;

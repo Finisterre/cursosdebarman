@@ -4,6 +4,7 @@ import { OrderStatusForm } from "@/components/admin/order-status-form";
 import { updateOrderStatusAction } from "./actions";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { formatDateTime } from "@/lib/utils";
+import { AdminBreadcrumb } from "@/components/layout/admin-breadcrumb";
 
 
 
@@ -22,6 +23,12 @@ export default async function AdminOrderDetailPage({ params }: AdminOrderDetailP
 
   return (
     <div className="space-y-6">
+      <AdminBreadcrumb
+        items={[
+          { label: "Pedidos", href: "/admin/orders" },
+          { label: `Pedido ${order.id.slice(0, 8)}...` },
+        ]}
+      />
       <div>
         <h1 className="text-2xl font-semibold">Pedido {order.id}</h1>
         <p className="text-sm text-muted-foreground">Cliente: {order.customerName}</p>

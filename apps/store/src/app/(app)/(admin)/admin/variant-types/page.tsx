@@ -1,5 +1,6 @@
 import { getVariantTypes, getVariantValuesByType } from "@/lib/variants";
 import { VariantTypesClient } from "./variant-types-client";
+import { AdminBreadcrumb } from "@/components/layout/admin-breadcrumb";
 
 export const revalidate = 0;
 
@@ -12,6 +13,7 @@ export default async function VariantTypesPage() {
 
   return (
     <div className="space-y-6">
+      <AdminBreadcrumb items={[{ label: "Variantes" }]} />
       <div>
         <h1 className="text-2xl font-semibold">Tipos de variante</h1>
         <p className="text-sm text-muted-foreground">

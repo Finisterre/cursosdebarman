@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import type { Banner } from "@/types";
+import { AdminBreadcrumb } from "@/components/layout/admin-breadcrumb";
 
 export const revalidate = 0;
 
@@ -27,6 +28,7 @@ export default async function AdminBannersPage() {
 
   return (
     <div className="space-y-6">
+      <AdminBreadcrumb items={[{ label: "Banners" }]} />
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-semibold">Banners</h1>
         <Button asChild>

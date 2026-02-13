@@ -21,6 +21,7 @@ export async function updateBannerAction(bannerId: string, values: BannerFormVal
     type: values.type,
     display_order: values.display_order,
     is_active: values.is_active,
+    show_title: values.show_title,
     starts_at: values.starts_at?.trim() || null,
     ends_at: values.ends_at?.trim() || null
   });

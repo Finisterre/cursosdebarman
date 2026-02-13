@@ -14,6 +14,7 @@ export const bannerSchema = z.object({
   type: typeEnum,
   display_order: z.coerce.number().int().min(0),
   is_active: z.boolean(),
+  show_title: z.boolean(),
   starts_at: z.string().optional().or(z.literal("")),
   ends_at: z.string().optional().or(z.literal(""))
 });

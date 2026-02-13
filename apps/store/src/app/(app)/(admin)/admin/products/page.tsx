@@ -2,15 +2,16 @@ import Link from "next/link";
 import { getProducts } from "@/lib/products";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { AdminBreadcrumb } from "@/components/layout/admin-breadcrumb";
 
 export const revalidate = 0;
 
 export default async function AdminProductsPage() {
   const products = await getProducts();
 
-
   return (
     <div className="space-y-6">
+      <AdminBreadcrumb items={[{ label: "Productos" }]} />
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-semibold">Productos</h1>
         <Button asChild>

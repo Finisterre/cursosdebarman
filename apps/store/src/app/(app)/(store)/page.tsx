@@ -27,7 +27,7 @@ export default async function StoreHomePage() {
         <HomeBanners banners={bannersTop} position="home_top" />
       )}
 
-      <section className="rounded-2xl border bg-muted/30 px-8 py-12">
+      {/* <section className="rounded-2xl border bg-muted/30 px-8 py-12">
         <div className="max-w-2xl space-y-4">
           <p className="text-sm text-muted-foreground">Colección destacada</p>
           <h1 className="text-3xl font-semibold tracking-tight md:text-4xl">
@@ -40,7 +40,7 @@ export default async function StoreHomePage() {
             <Link href="/products">Explorar productos</Link>
           </Button>
         </div>
-      </section>
+      </section> */}
 
       {bannersMiddle.length > 0 && (
         <HomeBanners banners={bannersMiddle} position="home_middle" />
