@@ -1,13 +1,13 @@
 import Link from "next/link";
 import { getProducts } from "@/lib/products";
-import { orders } from "@/data/orders";
+import { getOrders } from "@/lib/orders";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 
 export const revalidate = 0;
 
 export default async function AdminDashboardPage() {
-  const products = await getProducts();
+  const [products, orders] = await Promise.all([getProducts(), getOrders()]);
   const totalSales = orders.reduce((sum, order) => sum + order.total, 0);
 
   return (

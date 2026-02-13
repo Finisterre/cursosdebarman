@@ -1,8 +1,10 @@
 import Link from "next/link";
-import { orders } from "@/data/orders";
+import { getOrders } from "@/lib/orders";
 import type { OrderStatus } from "@/types";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+
+export const revalidate = 0;
 
 const statusLabels: Record<
   OrderStatus,
@@ -14,7 +16,8 @@ const statusLabels: Record<
   cancelled: { label: "Cancelado", variant: "outline" }
 };
 
-export default function AdminOrdersPage() {
+export default async function AdminOrdersPage() {
+  const orders = await getOrders();
   return (
     <div className="space-y-6">
       <div>

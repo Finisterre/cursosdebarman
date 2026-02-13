@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { getProductVariants } from "@/lib/variants";
+import { getChildProductsWithVariantValues } from "@/lib/products";
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
@@ -13,7 +13,7 @@ export async function GET(request: Request) {
   }
 
   try {
-    const variants = await getProductVariants(productId);
+    const variants = await getChildProductsWithVariantValues(productId);
     return NextResponse.json({ ok: true, variants });
   } catch (error) {
     console.error("[api] product-variants GET", error);

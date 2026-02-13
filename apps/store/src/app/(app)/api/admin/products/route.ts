@@ -6,7 +6,7 @@ type ProductPayload = {
   id?: string;
   name?: string;
   price?: number | null;
-  stock?: number | null;
+  stock?: number | null | string;
   slug?: string;
   description?: string;
   image_url?: string;
@@ -78,7 +78,8 @@ export async function PUT(request: Request) {
     featured: parsed.data.featured ?? false,
   };
   if (payload.stock !== undefined) {
-    updatePayload.stock = payload.stock === "" ? null : Number(payload.stock);
+    const raw = payload.stock;
+    updatePayload.stock = raw === "" || raw === null ? null : Number(raw);
   }
 
   const { error } = await supabaseAdmin

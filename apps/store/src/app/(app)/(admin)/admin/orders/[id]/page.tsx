@@ -1,5 +1,5 @@
 import { notFound } from "next/navigation";
-import { orders } from "@/data/orders";
+import { getOrderById } from "@/lib/orders";
 import { OrderStatusForm } from "@/components/admin/order-status-form";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 
@@ -7,8 +7,10 @@ type AdminOrderDetailPageProps = {
   params: { id: string };
 };
 
-export default function AdminOrderDetailPage({ params }: AdminOrderDetailPageProps) {
-  const order = orders.find((item) => item.id === params.id);
+export const revalidate = 0;
+
+export default async function AdminOrderDetailPage({ params }: AdminOrderDetailPageProps) {
+  const order = await getOrderById(params.id);
 
   if (!order) {
     notFound();
