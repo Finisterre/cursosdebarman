@@ -1,6 +1,5 @@
 "use client";
 
-import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -10,10 +9,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Breadcrumb } from "@/components/ui/breadcrumb";
 
 export default function CheckoutPage() {
-  const router = useRouter();
   const { items, subtotal, clear } = useCart();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
@@ -44,24 +41,30 @@ export default function CheckoutPage() {
             setIsSubmitting(true);
             setErrorMessage("");
             try {
+              const cartPayload = {
+                items: items.map((item) => ({
+                  productId: item.productId,
+                  sku: "sku" in item ? (item as { sku?: string }).sku : undefined,
+                  name: item.name ?? item.productId,
+                  unitPrice: item.price,
+                  quantity: item.quantity
+                })),
+                total: subtotal,
+                payerEmail: values.email,
+                payerName: values.name,
+                idempotencyKey: [
+                  ...items
+                    .slice()
+                    .sort((a, b) => a.productId.localeCompare(b.productId))
+                    .map((i) => `${i.productId}:${i.quantity}`),
+                  String(subtotal)
+                ].join("|")
+              };
+
               const response = await fetch("/api/mercadopago", {
                 method: "POST",
-                headers: {
-                  "Content-Type": "application/json"
-                },
-                body: JSON.stringify({
-                  items: items.map((item) => ({
-                    id: item.productId,
-                    title: item.name ?? item.productId,
-                    quantity: item.quantity,
-                    unit_price: item.price,
-                  })),
-                  payer: {
-                    name: values.name,
-                    email: values.email,
-                    phone: values.phone
-                  }
-                })
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(cartPayload)
               });
 
               const data = (await response.json()) as {
@@ -69,6 +72,7 @@ export default function CheckoutPage() {
                 init_point?: string;
                 sandbox_init_point?: string;
                 message?: string;
+                code?: string;
               };
 
               if (!response.ok || !data.ok) {
