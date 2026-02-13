@@ -10,8 +10,12 @@ const dmSans = DM_Sans({
 
 export const metadata: Metadata = {
   title: "fs-eshop",
-  description: "Starter ecommerce con Next.js 14 y Supabase"
+  description: "Starter ecommerce con Next.js 14 y Supabase",
+  verification: {
+    google: "evn9q9PWfhB1yTJtYzHaj23ai8ygy6_oX6nDVT5pIQA",
+  },
 };
+// <meta name="google-site-verification" content="evn9q9PWfhB1yTJtYzHaj23ai8ygy6_oX6nDVT5pIQA" />
 
 export default function RootLayout({
   children
