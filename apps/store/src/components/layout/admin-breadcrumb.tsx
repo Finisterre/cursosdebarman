@@ -38,7 +38,7 @@ export function AdminBreadcrumb({ items, className }: AdminBreadcrumbProps) {
               </span>
             ) : (
               <Link
-                href={item.href!}
+                href={item.href as any}
                 className="transition-colors hover:text-foreground"
               >
                 {item.label}
