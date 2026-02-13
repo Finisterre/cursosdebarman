@@ -1,5 +1,5 @@
 import { notFound } from "next/navigation";
-import { getFeaturedProducts, getProductBySlug } from "@/lib/products";
+import { getFeaturedProducts, getProductWithVariants } from "@/lib/products";
 import { ProductGallery } from "@/components/store/product-gallery";
 import { ProductPurchaseBlock } from "@/components/store/product-purchase-block";
 import { Badge } from "@/components/ui/badge";
@@ -15,7 +15,7 @@ type ProductDetailPageProps = {
 };
 
 export default async function ProductDetailPage({ params }: ProductDetailPageProps) {
-  const product = await getProductBySlug(params.slug);
+  const product = await getProductWithVariants(params.slug);
   const featured = await getFeaturedProducts();
   const category = await getCategoryById(product?.category_id ?? "");
 
@@ -23,31 +23,37 @@ export default async function ProductDetailPage({ params }: ProductDetailPagePro
     notFound();
   }
 
+  const imageUrl = product.image_url ?? "https://images.unsplash.com/photo-1505740420928-5e560c06d30e";
+
   return (
     <>
-    <Breadcrumb root={{ label: "Inicio", href: "/" }} firstSegment={{ label: category?.name ?? "", href: `/${category?.slug ?? ""}` }} />
-    <div className="grid gap-10 lg:grid-cols-2">
-      <ProductGallery image={product.image} name={product.name} />
-      <div className="space-y-4">
-        <div className="space-y-2">
-          {product.featured && <Badge variant="secondary">Destacado</Badge>}
-          <h1 className="text-3xl font-semibold">{product.name}</h1>
+      <Breadcrumb
+        root={{ label: "Inicio", href: "/" }}
+        firstSegment={{
+          label: category?.name ?? "",
+          href: `/${category?.slug ?? ""}`,
+        }}
+      />
+      <div className="grid gap-10 lg:grid-cols-2">
+        <ProductGallery image={imageUrl} name={product.name} />
+        <div className="space-y-4">
+          <div className="space-y-2">
+            {product.featured && <Badge variant="secondary">Destacado</Badge>}
+            <h1 className="text-3xl font-semibold">{product.name}</h1>
+          </div>
+          <p className="text-muted-foreground">{product.description}</p>
+          <ProductPurchaseBlock product={product} />
         </div>
-        <p className="text-muted-foreground">{product.description}</p>
-        <ProductPurchaseBlock product={product} />
       </div>
-    </div>
-    <section className="space-y-6 mt-20">
-      <div className="flex items-center justify-between">
-        <h2 className="text-2xl font-semibold">Destacados</h2>
-        <Link href="/products" className="text-sm text-muted-foreground hover:text-foreground">
-          Ver todo
-        </Link>
-      </div>    
-      <ProductList products={featured} />
-     
-    </section>
+      <section className="space-y-6 mt-20">
+        <div className="flex items-center justify-between">
+          <h2 className="text-2xl font-semibold">Destacados</h2>
+          <Link href="/products" className="text-sm text-muted-foreground hover:text-foreground">
+            Ver todo
+          </Link>
+        </div>
+        <ProductList products={featured} />
+      </section>
     </>
   );
 }
-

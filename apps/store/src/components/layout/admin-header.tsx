@@ -18,6 +18,9 @@ export function AdminHeader() {
           <Link href="/admin/categories" className="transition-colors hover:text-foreground">
             Categorías
           </Link>
+          <Link href="/admin/variant-types" className="transition-colors hover:text-foreground">
+            Variantes
+          </Link>
           <Link href="/admin/orders" className="transition-colors hover:text-foreground">
             Pedidos
           </Link>

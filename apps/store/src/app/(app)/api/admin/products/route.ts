@@ -4,10 +4,11 @@ import { supabaseAdmin } from "@/lib/supabase/admin";
 
 type ProductPayload = {
   id?: string;
-  name: string;
-  price: number;
-  slug: string;
-  description: string;
+  name?: string;
+  price?: number | null;
+  stock?: number | null;
+  slug?: string;
+  description?: string;
   image_url?: string;
   category_id?: string | null;
   featured?: boolean;
@@ -30,12 +31,12 @@ export async function POST(request: Request) {
     .from("products")
     .insert({
       name: parsed.data.name,
-      price: parsed.data.price,
+      price: parsed.data.price ?? null,
       slug: parsed.data.slug,
       description: parsed.data.description,
       image_url: payload.image_url ?? null,
       category_id: categoryId,
-      featured: parsed.data.featured ?? false
+      featured: parsed.data.featured ?? false,
     })
     .select("id")
     .single();
@@ -67,17 +68,22 @@ export async function PUT(request: Request) {
       ? payload.category_id
       : null;
 
+  const updatePayload: Record<string, unknown> = {
+    name: parsed.data.name,
+    price: parsed.data.price ?? null,
+    slug: parsed.data.slug,
+    description: parsed.data.description,
+    image_url: payload.image_url ?? undefined,
+    category_id: categoryId ?? null,
+    featured: parsed.data.featured ?? false,
+  };
+  if (payload.stock !== undefined) {
+    updatePayload.stock = payload.stock === "" ? null : Number(payload.stock);
+  }
+
   const { error } = await supabaseAdmin
     .from("products")
-    .update({
-      name: parsed.data.name,
-      price: parsed.data.price,
-      slug: parsed.data.slug,
-      description: parsed.data.description,
-      image_url: payload.image_url ?? undefined,
-      category_id: categoryId ?? null,
-      featured: parsed.data.featured ?? false
-    })
+    .update(updatePayload)
     .eq("id", payload.id);
 
   console.log("Supabase update product", {

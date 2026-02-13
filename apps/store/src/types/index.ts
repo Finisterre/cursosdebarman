@@ -1,24 +1,38 @@
-export type ProductVariant = {
-  id: string;
-  productId: string;
-  name: string;
-  value: string;
-  price: number;
-  stock: number;
-};
-
 export type VariantType = {
   id: string;
   name: string;
   slug: string;
-  createdAt: string;
 };
 
-export type VariantOption = {
+export type VariantValue = {
   id: string;
   variantTypeId: string;
   value: string;
-  createdAt: string;
+};
+
+export type ProductVariantValue = {
+  variantTypeId: string;
+  variantTypeName: string;
+  valueId: string;
+  value: string;
+};
+
+export type Product = {
+  id: string;
+  name: string;
+  slug: string;
+  description: string;
+  price?: number | null;
+  sale_price?: number | null;
+  stock?: number | null;
+  image_url?: string | null;
+  featured?: boolean;
+  category_id?: string | null;
+  parent_product_id?: string | null;
+  sku?: string | null;
+  is_variant: boolean;
+  variants?: Product[];
+  variantValues?: ProductVariantValue[];
 };
 
 export type Category = {
@@ -32,24 +46,10 @@ export type Category = {
   children?: Category[];
 };
 
-
-
-export type Product = {
-  id: string;
-  slug: string;
-  name: string;
+export type CartItem = {
+  productId: string;
   price: number;
-  description: string;
-  image: string;
-  featured?: boolean;
-  category_id?: string | null;
-  category?: Category;
-  variants?: ProductVariant[];
-};
-
-export type CartItem = Product & {
   quantity: number;
-  selectedVariant?: ProductVariant;
 };
 
 export type Customer = {
@@ -83,4 +83,3 @@ export type StoreSettings = {
   currency: string;
   storeName: string;
 };
-

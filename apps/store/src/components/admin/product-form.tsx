@@ -56,11 +56,12 @@ export function ProductForm({
     defaultValues: initialValues ?? {
       name: "",
       price: 0,
+      stock: 0,
       slug: "",
       description: "",
       category_id: "",
-      featured: false
-    }
+      featured: false,
+    },
   });
 
   useEffect(() => {
@@ -157,9 +158,16 @@ export function ProductForm({
       </div>
       <div className="space-y-2 w-1/4">
         <Label htmlFor="price">Precio</Label>
-        <Input id="price" type="number" {...form.register("price")} />
+        <Input id="price" type="number" min={0} step={0.01} {...form.register("price")} />
         {form.formState.errors.price && (
           <p className="text-sm text-destructive">{form.formState.errors.price.message}</p>
+        )}
+      </div>
+      <div className="space-y-2 w-1/4">
+        <Label htmlFor="stock">Stock</Label>
+        <Input id="stock" type="number" min={0} {...form.register("stock")} />
+        {form.formState.errors.stock && (
+          <p className="text-sm text-destructive">{form.formState.errors.stock.message}</p>
         )}
       </div>
       <div className="space-y-2 w-1/4">
@@ -228,7 +236,7 @@ export function ProductForm({
           <img
             src={previewUrl}
             alt="Vista previa"
-            className="w-full rounded-md object-contain"
+            className="w-full rounded-md object-contain max-h-64"
           />
         )}
       </div>

@@ -32,9 +32,18 @@ export default async function AdminProductsPage() {
             <TableRow key={product.id}>
               <TableCell className="font-medium">{product.name}</TableCell>
               <TableCell>
-                <img src={product.image} alt={product.name} width={100} height={100} />
+                <img
+                  src={product.image_url ?? ""}
+                  alt={product.name}
+                  width={100}
+                  height={100}
+                />
               </TableCell>
-              <TableCell>${product.price.toLocaleString("es-AR")}</TableCell>
+              <TableCell>
+                {product.price != null
+                  ? `$${product.price.toLocaleString("es-AR")}`
+                  : "Configurable"}
+              </TableCell>
               <TableCell>{product.slug}</TableCell>
               <TableCell>
                 <Button asChild variant="outline">

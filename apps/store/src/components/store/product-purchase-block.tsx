@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import type { Product, ProductVariant } from "@/types";
+import type { Product } from "@/types";
 import { ProductVariantSelector } from "@/components/store/product-variant-selector";
 import { AddToCartButton } from "@/components/store/add-to-cart-button";
 
@@ -10,30 +10,34 @@ type ProductPurchaseBlockProps = {
 };
 
 export function ProductPurchaseBlock({ product }: ProductPurchaseBlockProps) {
-  const [selectedVariant, setSelectedVariant] = useState<ProductVariant | null>(null);
+  const [selectedChild, setSelectedChild] = useState<Product | null>(null);
 
   const variants = product.variants ?? [];
   const hasVariants = variants.length > 0;
-  const mustSelectVariant = hasVariants && !selectedVariant;
+  const effectivePrice = selectedChild?.price ?? product.price;
+  const effectiveStock = selectedChild?.stock ?? product.stock;
+  const mustSelectVariant = hasVariants && !selectedChild;
+  const outOfStock = effectiveStock != null && effectiveStock <= 0;
+  const sellableId = selectedChild?.id ?? product.id;
 
   return (
     <div className="space-y-4">
       {hasVariants ? (
         <ProductVariantSelector
           product={product}
-          selectedVariantId={selectedVariant?.id ?? null}
-          onSelect={(v) => setSelectedVariant(v)}
+          selectedChild={selectedChild}
+          onSelect={setSelectedChild}
         />
       ) : (
         <p className="text-lg font-semibold">
-          ${product.price.toLocaleString("es-AR")}
+          {effectivePrice != null ? `$${effectivePrice.toLocaleString("es-AR")}` : "Consultar"}
         </p>
       )}
 
       <AddToCartButton
         product={product}
-        selectedVariant={selectedVariant}
-        disabled={mustSelectVariant}
+        selectedChild={selectedChild}
+        disabled={mustSelectVariant || outOfStock}
       />
     </div>
   );

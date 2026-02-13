@@ -1,6 +1,6 @@
 import { supabaseServer } from "@/lib/supabase/server";
 import { supabaseAdmin } from "@/lib/supabase/admin";
-import type { ProductVariant, VariantType, VariantOption } from "@/types";
+import type { VariantType, VariantValue } from "@/types";
 
 type VariantTypeRow = {
   id: string;
@@ -9,7 +9,7 @@ type VariantTypeRow = {
   created_at: string;
 };
 
-type VariantOptionRow = {
+type VariantValueRow = {
   id: string;
   variant_type_id: string;
   value: string;
@@ -21,16 +21,14 @@ function mapVariantType(row: VariantTypeRow): VariantType {
     id: row.id,
     name: row.name,
     slug: row.slug,
-    createdAt: row.created_at,
   };
 }
 
-function mapVariantOption(row: VariantOptionRow): VariantOption {
+function mapVariantValue(row: VariantValueRow): VariantValue {
   return {
     id: row.id,
     variantTypeId: row.variant_type_id,
     value: row.value,
-    createdAt: row.created_at,
   };
 }
 
@@ -47,174 +45,90 @@ export async function getVariantTypes(): Promise<VariantType[]> {
   return (data ?? []).map((r) => mapVariantType(r as VariantTypeRow));
 }
 
-export async function getVariantOptionsByType(typeId: string): Promise<VariantOption[]> {
+export async function getVariantValuesByType(typeId: string): Promise<VariantValue[]> {
   const { data, error } = await supabaseServer
-    .from("variant_options")
+    .from("variant_values")
     .select("id, variant_type_id, value, created_at")
     .eq("variant_type_id", typeId)
     .order("value");
 
   if (error) {
-    console.error("[variants] getVariantOptionsByType", typeId, error);
+    console.error("[variants] getVariantValuesByType", typeId, error);
     return [];
   }
-  return (data ?? []).map((r) => mapVariantOption(r as VariantOptionRow));
+  return (data ?? []).map((r) => mapVariantValue(r as VariantValueRow));
 }
 
-export async function getAllVariantOptions(): Promise<VariantOption[]> {
+export async function createVariantType(data: {
+  name: string;
+  slug: string;
+}): Promise<{ ok: boolean; id?: string; error?: string }> {
+  const slug = data.slug.trim().toLowerCase().replace(/\s+/g, "-");
+  const { data: row, error } = await supabaseAdmin
+    .from("variant_types")
+    .insert({ name: data.name.trim(), slug })
+    .select("id")
+    .single();
+
+  if (error) {
+    console.error("[variants] createVariantType", error);
+    return { ok: false, error: error.message };
+  }
+  return { ok: true, id: row?.id };
+}
+
+export async function createVariantValue(data: {
+  variantTypeId: string;
+  value: string;
+}): Promise<{ ok: boolean; id?: string; error?: string }> {
+  const value = data.value.trim();
+  if (!value) {
+    return { ok: false, error: "Valor requerido" };
+  }
+  const { data: row, error } = await supabaseAdmin
+    .from("variant_values")
+    .insert({ variant_type_id: data.variantTypeId, value })
+    .select("id")
+    .single();
+
+  if (error) {
+    console.error("[variants] createVariantValue", error);
+    return { ok: false, error: error.message };
+  }
+  return { ok: true, id: row?.id };
+}
+
+export async function deleteVariantType(
+  id: string
+): Promise<{ ok: boolean; error?: string }> {
+  const { error } = await supabaseAdmin.from("variant_types").delete().eq("id", id);
+  if (error) {
+    console.error("[variants] deleteVariantType", error);
+    return { ok: false, error: error.message };
+  }
+  return { ok: true };
+}
+
+export async function deleteVariantValue(
+  id: string
+): Promise<{ ok: boolean; error?: string }> {
+  const { error } = await supabaseAdmin.from("variant_values").delete().eq("id", id);
+  if (error) {
+    console.error("[variants] deleteVariantValue", error);
+    return { ok: false, error: error.message };
+  }
+  return { ok: true };
+}
+
+export async function getAllVariantValues(): Promise<VariantValue[]> {
   const { data, error } = await supabaseServer
-    .from("variant_options")
+    .from("variant_values")
     .select("id, variant_type_id, value, created_at")
     .order("value");
 
   if (error) {
-    console.error("[variants] getAllVariantOptions", error);
+    console.error("[variants] getAllVariantValues", error);
     return [];
   }
-  return (data ?? []).map((r) => mapVariantOption(r as VariantOptionRow));
-}
-
-type VariantOptionJoin = {
-  value: string;
-  variant_types: { name: string } | null;
-};
-
-function parseVariantOption(
-  opt: VariantOptionJoin | VariantOptionJoin[] | null | undefined
-): { name: string; value: string } {
-  const single = Array.isArray(opt) ? opt[0] : opt;
-  return {
-    name: single?.variant_types?.name ?? "",
-    value: single?.value ?? "",
-  };
-}
-
-export async function getProductVariants(productId: string): Promise<ProductVariant[]> {
-  const { data, error } = await supabaseServer
-    .from("product_variants")
-    .select(
-      `
-      id,
-      product_id,
-      variant_option_id,
-      price,
-      stock,
-      variant_options(value, variant_types(name))
-    `
-    )
-    .eq("product_id", productId);
-
-  if (error) {
-    console.error("[variants] getProductVariants", productId, error);
-    return [];
-  }
-
-  const rows = (data ?? []) as unknown as Array<{
-    id: string;
-    product_id: string;
-    variant_option_id: string;
-    price: number;
-    stock: number;
-    variant_options?: VariantOptionJoin | VariantOptionJoin[] | null;
-  }>;
-
-  return rows.map((row) => {
-    const { name, value } = parseVariantOption(row.variant_options);
-    return {
-      id: row.id,
-      productId: row.product_id,
-      name,
-      value,
-      price: Number(row.price),
-      stock: Number(row.stock),
-    };
-  });
-}
-
-export type ProductVariantForAdmin = ProductVariant & { variantOptionId: string };
-
-export async function getProductVariantsForAdmin(
-  productId: string
-): Promise<ProductVariantForAdmin[]> {
-  const { data, error } = await supabaseServer
-    .from("product_variants")
-    .select(
-      `
-      id,
-      product_id,
-      variant_option_id,
-      price,
-      stock,
-      variant_options(value, variant_types(name))
-    `
-    )
-    .eq("product_id", productId);
-
-  if (error) {
-    console.error("[variants] getProductVariantsForAdmin", productId, error);
-    return [];
-  }
-
-  const rows = (data ?? []) as unknown as Array<{
-    id: string;
-    product_id: string;
-    variant_option_id: string;
-    price: number;
-    stock: number;
-    variant_options?: VariantOptionJoin | VariantOptionJoin[] | null;
-  }>;
-
-  return rows.map((row) => {
-    const { name, value } = parseVariantOption(row.variant_options);
-    return {
-      id: row.id,
-      productId: row.product_id,
-      variantOptionId: row.variant_option_id,
-      name,
-      value,
-      price: Number(row.price),
-      stock: Number(row.stock),
-    };
-  });
-}
-
-export type ProductVariantInput = {
-  variantOptionId: string;
-  price: number;
-  stock: number;
-};
-
-export async function saveProductVariants(
-  productId: string,
-  variants: ProductVariantInput[]
-): Promise<{ ok: boolean; error?: string }> {
-  const { error: deleteError } = await supabaseAdmin
-    .from("product_variants")
-    .delete()
-    .eq("product_id", productId);
-
-  if (deleteError) {
-    console.error("[variants] saveProductVariants delete", deleteError);
-    return { ok: false, error: deleteError.message };
-  }
-
-  if (variants.length === 0) {
-    return { ok: true };
-  }
-
-  const rows = variants.map((v) => ({
-    product_id: productId,
-    variant_option_id: v.variantOptionId,
-    price: v.price,
-    stock: v.stock,
-  }));
-
-  const { error: insertError } = await supabaseAdmin.from("product_variants").insert(rows);
-
-  if (insertError) {
-    console.error("[variants] saveProductVariants insert", insertError);
-    return { ok: false, error: insertError.message };
-  }
-
-  return { ok: true };
+  return (data ?? []).map((r) => mapVariantValue(r as VariantValueRow));
 }

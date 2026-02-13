@@ -1,92 +1,122 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import type { Product, ProductVariant } from "@/types";
+import type { Product, ProductVariantValue } from "@/types";
 import { cn } from "@/lib/utils";
 
 type ProductVariantSelectorProps = {
   product: Product;
-  onSelect?: (variant: ProductVariant | null) => void;
-  selectedVariantId: string | null;
+  selectedChild: Product | null;
+  onSelect: (child: Product | null) => void;
   className?: string;
 };
 
+function findMatchingChild(
+  children: Product[],
+  selectedByType: Record<string, string>
+): Product | null {
+  const selectedIds = Object.values(selectedByType).filter(Boolean);
+  if (selectedIds.length === 0) return null;
+  return (
+    children.find((child) => {
+      const childValueIds = (child.variantValues ?? []).map((v) => v.valueId);
+      if (childValueIds.length !== selectedIds.length) return false;
+      return selectedIds.every((id) => childValueIds.includes(id));
+    }) ?? null
+  );
+}
+
 export function ProductVariantSelector({
   product,
+  selectedChild,
   onSelect,
-  selectedVariantId,
   className,
 }: ProductVariantSelectorProps) {
   const variants = product.variants ?? [];
-  const [selected, setSelected] = useState<string | null>(selectedVariantId);
+  const hasVariants = variants.length > 0;
 
-  const minPrice = useMemo(() => {
-    if (variants.length === 0) return product.price;
-    return Math.min(...variants.map((v) => v.price));
-  }, [variants, product.price]);
+  const { typeOrder, optionsByType } = useMemo(() => {
+    const typeOrder: { typeId: string; typeName: string }[] = [];
+    const optionsByType: Record<string, ProductVariantValue[]> = {};
+    for (const child of variants) {
+      for (const pvv of child.variantValues ?? []) {
+        if (!optionsByType[pvv.variantTypeId]) {
+          typeOrder.push({ typeId: pvv.variantTypeId, typeName: pvv.variantTypeName });
+          optionsByType[pvv.variantTypeId] = [];
+        }
+        const exists = optionsByType[pvv.variantTypeId].some((o) => o.valueId === pvv.valueId);
+        if (!exists) {
+          optionsByType[pvv.variantTypeId].push(pvv);
+        }
+      }
+    }
+    return { typeOrder, optionsByType };
+  }, [variants]);
 
-  const selectedVariant = variants.find((v) => v.id === selected);
-  const displayPrice = selectedVariant ? selectedVariant.price : minPrice;
+  const [selectedByType, setSelectedByType] = useState<Record<string, string>>({});
 
-  const handleSelect = (variant: ProductVariant) => {
-    const newId = selected === variant.id ? null : variant.id;
-    setSelected(newId);
-    onSelect?.(
-      newId ? variants.find((v) => v.id === newId) ?? null : null
-    );
+  const matchingChild = useMemo(
+    () => findMatchingChild(variants, selectedByType),
+    [variants, selectedByType]
+  );
+
+  const displayPrice = matchingChild?.price ?? product.price ?? null;
+  const displayStock = matchingChild?.stock ?? product.stock ?? null;
+  const outOfStock = displayStock != null && displayStock <= 0;
+
+  const handleSelectValue = (typeId: string, valueId: string) => {
+    const next = { ...selectedByType, [typeId]: valueId };
+    setSelectedByType(next);
+    const child = findMatchingChild(variants, next);
+    onSelect(child);
   };
 
-  if (variants.length === 0) return null;
+  if (!hasVariants) return null;
 
   return (
     <div className={cn("space-y-3", className)}>
       <div className="flex flex-wrap items-baseline gap-2">
         <span className="text-sm font-medium text-muted-foreground">Precio:</span>
         <span className="text-lg font-semibold">
-          ${displayPrice.toLocaleString("es-AR")}
+          {displayPrice != null
+            ? `$${displayPrice.toLocaleString("es-AR")}`
+            : "Elegí una variante"}
         </span>
-        {!selectedVariant && variants.length > 1 && (
+        {displayStock != null && (
           <span className="text-xs text-muted-foreground">
-            (precio mínimo; elegí una variante)
+            {displayStock > 0 ? `${displayStock} en stock` : "Sin stock"}
           </span>
         )}
       </div>
-      <div className="space-y-2">
-        <p className="text-sm font-medium">Elegí tu variante</p>
-        <ul className="space-y-2">
-          {variants.map((variant) => {
-            const isSelected = selected === variant.id;
-            const outOfStock = variant.stock <= 0;
-            return (
-              <li key={variant.id}>
-                <button
-                  type="button"
-                  onClick={() => !outOfStock && handleSelect(variant)}
-                  disabled={outOfStock}
-                  className={cn(
-                    "flex w-full flex-wrap items-center justify-between gap-2 rounded-md border px-3 py-2 text-left text-sm transition-colors",
-                    isSelected
-                      ? "border-primary bg-primary/10 font-medium"
-                      : "hover:bg-muted/50",
-                    outOfStock && "cursor-not-allowed opacity-60"
-                  )}
-                >
-                  <span>
-                    {variant.name}: <strong>{variant.value}</strong>
-                  </span>
-                  <span className="text-muted-foreground">
-                    ${variant.price.toLocaleString("es-AR")}
-                    {variant.stock >= 0 && (
-                      <span className="ml-2">
-                        · {variant.stock} en stock
-                      </span>
-                    )}
-                  </span>
-                </button>
-              </li>
-            );
-          })}
-        </ul>
+      <div className="space-y-3">
+        {typeOrder.map(({ typeId, typeName }) => {
+          const options = optionsByType[typeId] ?? [];
+          return (
+            <div key={typeId}>
+              <p className="text-sm font-medium mb-2">{typeName}</p>
+              <div className="flex flex-wrap gap-2">
+                {options.map((opt) => {
+                  const isSelected = selectedByType[typeId] === opt.valueId;
+                  return (
+                    <button
+                      key={opt.valueId}
+                      type="button"
+                      onClick={() => handleSelectValue(typeId, opt.valueId)}
+                      className={cn(
+                        "rounded-md border px-3 py-2 text-sm transition-colors",
+                        isSelected
+                          ? "border-primary bg-primary/10 font-medium"
+                          : "hover:bg-muted/50"
+                      )}
+                    >
+                      {opt.value}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          );
+        })}
       </div>
     </div>
   );

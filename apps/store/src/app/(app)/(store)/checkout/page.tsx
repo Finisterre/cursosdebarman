@@ -51,10 +51,10 @@ export default function CheckoutPage() {
                 },
                 body: JSON.stringify({
                   items: items.map((item) => ({
-                    id: item.id,
-                    title: item.name,
+                    id: item.productId,
+                    title: item.name ?? item.productId,
                     quantity: item.quantity,
-                    unit_price: item.price
+                    unit_price: item.price,
                   })),
                   payer: {
                     name: values.name,
@@ -146,7 +146,7 @@ export default function CheckoutPage() {
           <CardContent className="space-y-4">
             <div className="space-y-2 text-sm text-muted-foreground">
               {items.map((item) => (
-                <div key={item.id} className="flex justify-between">
+                <div key={item.productId} className="flex justify-between">
                   <span>
                     {item.name} x{item.quantity}
                   </span>
