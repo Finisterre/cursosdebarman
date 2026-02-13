@@ -78,13 +78,19 @@ export function ProductVariantSelector({
       <div className="flex flex-wrap items-baseline gap-2">
         <span className="text-sm font-medium text-muted-foreground">Precio:</span>
         <span className="text-lg font-semibold">
-          {displayPrice != null
+          {displayPrice != null && displayPrice > 0
             ? `$${displayPrice.toLocaleString("es-AR")}`
-            : "Elegí una variante"}
+            : matchingChild != null
+              ? "Consultar"
+              : "Elegí una opción"}
         </span>
         {displayStock != null && (
           <span className="text-xs text-muted-foreground">
-            {displayStock > 0 ? `${displayStock} en stock` : "Sin stock"}
+            {displayStock != null && displayStock > 0
+              ? `${displayStock} en stock`
+              : matchingChild != null
+                ? "Sin stock"
+                : ""}
           </span>
         )}
       </div>

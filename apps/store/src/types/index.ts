@@ -17,6 +17,14 @@ export type ProductVariantValue = {
   value: string;
 };
 
+export type ProductImage = {
+  id: string;
+  product_id: string;
+  url: string;
+  position: number;
+  is_primary: boolean;
+};
+
 export type Product = {
   id: string;
   name: string;
@@ -33,6 +41,7 @@ export type Product = {
   is_variant: boolean;
   variants?: Product[];
   variantValues?: ProductVariantValue[];
+  images?: ProductImage[];
 };
 
 export type Category = {

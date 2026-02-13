@@ -9,7 +9,9 @@ const FALLBACK_IMAGE = "https://images.unsplash.com/photo-1505740420928-5e560c06
 export function ProductCard({ product }: { product: Product }) {
   const imageUrl = product.image_url ?? FALLBACK_IMAGE;
   const priceLabel =
-    product.price != null ? `$${product.price.toLocaleString("es-AR")}` : "Consultar";
+    product.price != null && product.price > 0
+      ? `$${product.price.toLocaleString("es-AR")}`
+      : "Consultar";
 
   return (
     <Card className="flex h-full flex-col overflow-hidden">

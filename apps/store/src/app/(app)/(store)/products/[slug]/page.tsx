@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation";
 import { getFeaturedProducts, getProductWithVariants } from "@/lib/products";
+import { getProductImages } from "@/lib/product-images";
 import { ProductDetailContent } from "@/components/store/product-detail-content";
 import { Badge } from "@/components/ui/badge";
 import { ProductList } from "@/components/store/product-list";
@@ -22,6 +23,20 @@ export default async function ProductDetailPage({ params }: ProductDetailPagePro
     notFound();
   }
 
+  const parentImages = await getProductImages(product.id);
+  const productWithImages: typeof product = {
+    ...product,
+    images: parentImages,
+    variants: product.variants?.length
+      ? await Promise.all(
+          product.variants.map(async (v) => ({
+            ...v,
+            images: await getProductImages(v.id),
+          }))
+        )
+      : [],
+  };
+
   return (
     <>
       <Breadcrumb
@@ -31,7 +46,7 @@ export default async function ProductDetailPage({ params }: ProductDetailPagePro
           href: `/${category?.slug ?? ""}`,
         }}
       />
-      <ProductDetailContent product={product}>
+      <ProductDetailContent product={productWithImages}>
         <div className="space-y-2">
           {product.featured && <Badge variant="secondary">Destacado</Badge>}
           <h1 className="text-3xl font-semibold">{product.name}</h1>

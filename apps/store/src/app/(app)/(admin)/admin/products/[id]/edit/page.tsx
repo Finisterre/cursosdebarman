@@ -3,9 +3,11 @@ import Link from "next/link";
 import { getProductById, getChildProductsWithVariantValues } from "@/lib/products";
 import { getCategoriesTree } from "@/lib/categories";
 import { getVariantTypes, getVariantValuesByType } from "@/lib/variants";
+import { getProductImages } from "@/lib/product-images";
 import { ProductForm } from "@/components/admin/product-form";
 import { ProductVariantsEditor } from "@/components/admin/product-variants-editor";
 import { ProductVariantsPriceStockEditor } from "@/components/admin/product-variants-price-stock-editor";
+import { ProductImageGallery } from "@/components/admin/product-image-gallery";
 import { Button } from "@/components/ui/button";
 
 export const revalidate = 0;
@@ -16,11 +18,12 @@ type EditProductPageProps = {
 
 export default async function EditProductPage({ params }: EditProductPageProps) {
   const { id } = params;
-  const [product, categories, children, variantTypes] = await Promise.all([
+  const [product, categories, children, variantTypes, productImages] = await Promise.all([
     getProductById(id),
     getCategoriesTree(),
     getChildProductsWithVariantValues(id),
     getVariantTypes(),
+    getProductImages(id),
   ]);
 
   if (!product) {
@@ -55,7 +58,11 @@ export default async function EditProductPage({ params }: EditProductPageProps) 
         categories={categories}
       />
 
-{children.length > 0 && (
+      <div className="border-t pt-8">
+        <ProductImageGallery productId={id} initialImages={productImages} />
+      </div>
+
+      {children.length > 0 && (
         <div className="border-t pt-8">
           <h2 className="text-lg font-semibold mb-4">Precio y stock por variante</h2>
           <p className="text-sm text-muted-foreground mb-4">

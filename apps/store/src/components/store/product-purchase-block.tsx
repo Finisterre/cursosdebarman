@@ -36,9 +36,18 @@ export function ProductPurchaseBlock({ product, onSelectChild }: ProductPurchase
           onSelect={handleSelect}
         />
       ) : (
-        <p className="text-lg font-semibold">
-          {effectivePrice != null ? `$${effectivePrice.toLocaleString("es-AR")}` : "Consultar"}
-        </p>
+        <div className="flex flex-wrap items-baseline gap-2">
+          <p className="text-lg font-semibold">
+            {effectivePrice != null && effectivePrice > 0
+              ? `$${effectivePrice.toLocaleString("es-AR")}`
+              : "Consultar"}
+          </p>
+          {effectiveStock != null && (
+            <span className="text-sm text-muted-foreground">
+              {effectiveStock > 0 ? `${effectiveStock} en stock` : "Sin stock"}
+            </span>
+          )}
+        </div>
       )}
 
       <AddToCartButton
