@@ -3,6 +3,8 @@ import { getCategoriesTree } from "@/lib/categories";
 import type { Category } from "@/types";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Pencil } from "lucide-react";
+import { DeleteCategoryButton } from "@/components/admin/delete-category-button";
 
 export const revalidate = 0;
 
@@ -11,15 +13,22 @@ function renderCategoryRows(categories: Category[], depth = 0): React.ReactNode[
   categories.forEach((category) => {
     rows.push(
       <TableRow key={category.id}>
-        <TableCell style={{ paddingLeft: depth * 16 }} className="font-medium">
+        <TableCell style={{ paddingLeft: depth * 16 }} className={`font-medium ${depth === 0 ? "font-bold text-lg" : ""}`}>
           {category.name}
         </TableCell>
         <TableCell>{category.slug}</TableCell>
         <TableCell>{category.is_active ? "Activa" : "Inactiva"}</TableCell>
         <TableCell>
-          <Button asChild variant="outline">
-            <Link href={`/admin/categories/${category.id}`}>Editar</Link>
+          <Button asChild variant="outline" size="sm">
+            <Link href={`/admin/categories/${category.id}`}>Editar <Pencil size={16} /></Link>
           </Button>
+        </TableCell>
+        <TableCell>
+          <DeleteCategoryButton
+            categoryId={category.id}
+            categoryName={category.name}
+            hasChildren={(category.children?.length ?? 0) > 0}
+          />
         </TableCell>
       </TableRow>
     );
@@ -50,6 +59,7 @@ export default async function AdminCategoriesPage() {
             <TableHead>Slug</TableHead>
             <TableHead>Estado</TableHead>
             <TableHead></TableHead>
+            <TableHead className="w-[60px]"></TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>{renderCategoryRows(categories)}</TableBody>

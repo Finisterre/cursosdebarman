@@ -1,4 +1,5 @@
 import { supabaseServer } from "@/lib/supabase/server";
+import { supabaseAdmin } from "@/lib/supabase/admin";
 import type { Category } from "@/types";
 
 type CategoryRow = {
@@ -154,5 +155,14 @@ export async function getCategoryDescendantsBySlug(slug: string): Promise<{
     return { category: null, ids: [] };
   }
   return { category, ids: collectCategoryIds(category) };
+}
+
+export async function deleteCategory(id: string): Promise<{ ok: boolean; error?: string }> {
+  const { error } = await supabaseAdmin.from("categories").delete().eq("id", id);
+  if (error) {
+    console.error("[categories] deleteCategory", id, error);
+    return { ok: false, error: error.message };
+  }
+  return { ok: true };
 }
 

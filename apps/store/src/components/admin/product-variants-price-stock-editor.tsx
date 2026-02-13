@@ -19,6 +19,7 @@ import {
   updateProductPriceStockAction,
   deleteVariantChildAction,
 } from "@/app/(app)/(admin)/admin/products/[id]/edit/actions";
+import { Pencil, Save, Trash } from "lucide-react";
 
 type ChildWithValues = Product & { variantValues?: { value: string; variantTypeName: string }[] };
 
@@ -117,11 +118,12 @@ export function ProductVariantsPriceStockEditor({ children }: Props) {
           <TableRow>
             <TableHead>Variante</TableHead>
             <TableHead>SKU</TableHead>
-            <TableHead className="w-[140px]">Precio</TableHead>
-            <TableHead className="w-[120px]">Stock</TableHead>
-            <TableHead className="w-[100px]"></TableHead>
-            <TableHead className="w-[80px]"></TableHead>
-            <TableHead className="w-[80px]"></TableHead>
+            <TableHead className="w-[100px] text-center align-middle ">Imagen</TableHead>
+            <TableHead className="w-[140px] text-center align-middle">Precio</TableHead>
+            <TableHead className="w-[120px] text-center align-middle">Stock</TableHead>
+            <TableHead className="w-[100px] text-center align-middle"></TableHead>
+            <TableHead className="w-[80px] text-center align-middle"></TableHead>
+            <TableHead className="w-[80px] text-center align-middle"></TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -130,6 +132,14 @@ export function ProductVariantsPriceStockEditor({ children }: Props) {
               <TableCell className="font-medium">{variantLabel(child)}</TableCell>
               <TableCell className="text-muted-foreground text-sm">
                 {child.sku ?? "—"}
+              </TableCell>
+              <TableCell>
+                <img
+                  src={child.image_url ?? ""}
+                  alt={child.name}
+                  width={100}
+                  height={100}
+                />
               </TableCell>
               <TableCell>
                 <Input
@@ -158,23 +168,23 @@ export function ProductVariantsPriceStockEditor({ children }: Props) {
                   onClick={() => handleSave(child)}
                   disabled={savingId === child.id}
                 >
-                  {savingId === child.id ? "..." : "Guardar"}
+                  {savingId === child.id ? "..." : "Guardar"} {savingId === child.id ? <Save size={16} /> : <Save size={16} />}
                 </Button>
               </TableCell>
               <TableCell>
-                <Button asChild variant="ghost" size="sm">
-                  <Link href={`/admin/products/${child.id}/edit`}>Editar</Link>
+                <Button asChild variant="ghost" size="sm" className="border border-gray-300 rounded-md px-2 py-1 hover:bg-gray-200" >
+                  <Link href={`/admin/products/${child.id}/edit`}>Editar <Pencil size={16} /></Link>
                 </Button>
               </TableCell>
               <TableCell>
                 <Button
                   size="sm"
                   variant="ghost"
-                  className="text-destructive hover:text-destructive hover:bg-destructive/10"
+                  className="text-destructive hover:text-destructive hover:bg-destructive/10 border border-gray-300 rounded-md px-2 py-1"
                   onClick={() => showDeleteConfirm(child)}
                   disabled={deletingId === child.id}
                 >
-                  {deletingId === child.id ? "..." : "Borrar"}
+                  {deletingId === child.id ? "..." : "Borrar"} {deletingId === child.id ? <Trash size={16} /> : <Trash size={16} />}
                 </Button>
               </TableCell>
             </TableRow>
