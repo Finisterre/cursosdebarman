@@ -1,7 +1,6 @@
 import { notFound } from "next/navigation";
 import { getFeaturedProducts, getProductWithVariants } from "@/lib/products";
-import { ProductGallery } from "@/components/store/product-gallery";
-import { ProductPurchaseBlock } from "@/components/store/product-purchase-block";
+import { ProductDetailContent } from "@/components/store/product-detail-content";
 import { Badge } from "@/components/ui/badge";
 import { ProductList } from "@/components/store/product-list";
 import Link from "next/link";
@@ -23,8 +22,6 @@ export default async function ProductDetailPage({ params }: ProductDetailPagePro
     notFound();
   }
 
-  const imageUrl = product.image_url ?? "https://images.unsplash.com/photo-1505740420928-5e560c06d30e";
-
   return (
     <>
       <Breadcrumb
@@ -34,17 +31,13 @@ export default async function ProductDetailPage({ params }: ProductDetailPagePro
           href: `/${category?.slug ?? ""}`,
         }}
       />
-      <div className="grid gap-10 lg:grid-cols-2">
-        <ProductGallery image={imageUrl} name={product.name} />
-        <div className="space-y-4">
-          <div className="space-y-2">
-            {product.featured && <Badge variant="secondary">Destacado</Badge>}
-            <h1 className="text-3xl font-semibold">{product.name}</h1>
-          </div>
-          <p className="text-muted-foreground">{product.description}</p>
-          <ProductPurchaseBlock product={product} />
+      <ProductDetailContent product={product}>
+        <div className="space-y-2">
+          {product.featured && <Badge variant="secondary">Destacado</Badge>}
+          <h1 className="text-3xl font-semibold">{product.name}</h1>
         </div>
-      </div>
+        <p className="text-muted-foreground">{product.description}</p>
+      </ProductDetailContent>
       <section className="space-y-6 mt-20">
         <div className="flex items-center justify-between">
           <h2 className="text-2xl font-semibold">Destacados</h2>

@@ -7,10 +7,17 @@ import { AddToCartButton } from "@/components/store/add-to-cart-button";
 
 type ProductPurchaseBlockProps = {
   product: Product;
+  /** Si se provee, se llama al cambiar la variante seleccionada (ej. para actualizar la imagen). */
+  onSelectChild?: (child: Product | null) => void;
 };
 
-export function ProductPurchaseBlock({ product }: ProductPurchaseBlockProps) {
+export function ProductPurchaseBlock({ product, onSelectChild }: ProductPurchaseBlockProps) {
   const [selectedChild, setSelectedChild] = useState<Product | null>(null);
+
+  const handleSelect = (child: Product | null) => {
+    setSelectedChild(child);
+    onSelectChild?.(child);
+  };
 
   const variants = product.variants ?? [];
   const hasVariants = variants.length > 0;
@@ -26,7 +33,7 @@ export function ProductPurchaseBlock({ product }: ProductPurchaseBlockProps) {
         <ProductVariantSelector
           product={product}
           selectedChild={selectedChild}
-          onSelect={setSelectedChild}
+          onSelect={handleSelect}
         />
       ) : (
         <p className="text-lg font-semibold">
