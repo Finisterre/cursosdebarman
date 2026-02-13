@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { LayoutDashboard, Package, FolderTree, Layers, ShoppingBag, Image, LogOut } from "lucide-react";
+import { LayoutDashboard, Package, FolderTree, Layers, ShoppingBag, Image, Settings, LogOut } from "lucide-react";
 
 const NAV_ITEMS = [
   { href: "/admin/dashboard", label: "Dashboard", icon: LayoutDashboard },
@@ -13,6 +13,7 @@ const NAV_ITEMS = [
   { href: "/admin/variant-types", label: "Variantes", icon: Layers },
   { href: "/admin/orders", label: "Pedidos", icon: ShoppingBag },
   { href: "/admin/banners", label: "Banners", icon: Image },
+  { href: "/admin/settings", label: "Configuración", icon: Settings },
 ] as const;
 
 type AdminSidebarProps = {

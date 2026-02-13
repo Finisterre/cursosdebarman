@@ -1,11 +1,40 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { getFeaturedProducts } from "@/lib/products";
 import { getBannersForStore } from "@/lib/banners";
+import { getSiteSettings } from "@/lib/site-settings";
+import { absoluteUrl } from "@/lib/seo";
 import { ProductList } from "@/components/store/product-list";
 import { HomeBanners } from "@/components/store/home-banners";
-import { Button } from "@/components/ui/button";
 
 export const revalidate = 0;
+
+export async function generateMetadata(): Promise<Metadata> {
+  const settings = await getSiteSettings();
+  const title = settings?.default_meta_title ?? settings?.site_name ?? "fs-eshop";
+  const description = settings?.default_meta_description ?? undefined;
+  const image = settings?.default_meta_image ?? undefined;
+  const url = absoluteUrl("/");
+
+  return {
+    title,
+    description,
+    openGraph: {
+      title,
+      description: description ?? undefined,
+      url,
+      siteName: settings?.site_name ?? undefined,
+      images: image ? [{ url: image }] : undefined,
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description: description ?? undefined,
+      images: image ? [image] : undefined,
+    },
+    alternates: { canonical: url },
+  };
+}
 
 export default async function StoreHomePage() {
   const [featured, bannersTop, bannersHero, bannersMiddle, bannersBottom] = await Promise.all([
@@ -48,13 +77,13 @@ export default async function StoreHomePage() {
 
     
 
-      <section className="space-y-6 max-w-6xl mx-auto">
-        <div className="flex items-center justify-between">
+      <section className="space-y-6 max-w-6xl mx-auto" aria-label="Productos destacados">
+        <header className="flex items-center justify-between">
           <h2 className="text-2xl font-semibold">Destacados</h2>
           <Link href="/products" className="text-sm text-muted-foreground hover:text-foreground">
             Ver todo
           </Link>
-        </div>
+        </header>
         <ProductList products={featured} />
       </section>
 

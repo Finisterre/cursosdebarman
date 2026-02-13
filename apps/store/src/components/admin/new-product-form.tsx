@@ -13,6 +13,7 @@ import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "@/components/ui/use-toast";
 import { uploadProductImage } from "@/lib/uploadProductImage";
+import { SEOFormSection } from "@/components/admin/seo-form-section";
 import { createProductAction } from "@/app/(app)/(admin)/admin/products/new/actions";
 import type { OptionByType } from "@/lib/products";
 
@@ -58,6 +59,12 @@ export function NewProductForm({
       description: "",
       category_id: "",
       featured: false,
+      meta_title: "",
+      meta_description: "",
+      meta_keywords: "",
+      meta_image: "",
+      canonical_url: "",
+      no_index: false,
     },
   });
 
@@ -108,6 +115,12 @@ export function NewProductForm({
             featured: values.featured,
             price: hasVariantSelection ? null : values.price ?? 0,
             variantOptions: variantOptions ?? undefined,
+            meta_title: values.meta_title || null,
+            meta_description: values.meta_description || null,
+            meta_keywords: values.meta_keywords || null,
+            meta_image: values.meta_image || null,
+            canonical_url: values.canonical_url || null,
+            no_index: values.no_index ?? false,
           });
 
           if (!result.ok) {
@@ -268,6 +281,16 @@ export function NewProductForm({
           <img src={previewUrl} alt="Vista previa" className="mt-2 w-full max-w-xs rounded-md object-contain" />
         )}
       </div>
+
+      <SEOFormSection
+        form={form}
+        titleField="meta_title"
+        descriptionField="meta_description"
+        keywordsField="meta_keywords"
+        imageField="meta_image"
+        canonicalField="canonical_url"
+        noIndexField="no_index"
+      />
 
       <Button type="submit" disabled={isSubmitting}>
         {isSubmitting ? "Guardando..." : "Crear producto"}

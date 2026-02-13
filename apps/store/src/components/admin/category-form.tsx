@@ -11,6 +11,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "@/components/ui/use-toast";
+import { SEOFormSection } from "@/components/admin/seo-form-section";
 
 type CategoryFormProps = {
   categories: Category[];
@@ -48,7 +49,13 @@ export function CategoryForm({ categories, initialValues, categoryId }: Category
       slug: "",
       description: "",
       parent_id: "",
-      is_active: true
+      is_active: true,
+      meta_title: "",
+      meta_description: "",
+      meta_keywords: "",
+      meta_image: "",
+      canonical_url: "",
+      no_index: false,
     }
   });
 
@@ -126,6 +133,17 @@ export function CategoryForm({ categories, initialValues, categoryId }: Category
         <input type="checkbox" {...form.register("is_active")} />
         Activa
       </label>
+
+      <SEOFormSection
+        form={form}
+        titleField="meta_title"
+        descriptionField="meta_description"
+        keywordsField="meta_keywords"
+        imageField="meta_image"
+        canonicalField="canonical_url"
+        noIndexField="no_index"
+      />
+
       <Button type="submit" disabled={isSubmitting}>
         {isSubmitting ? "Guardando..." : "Guardar"}
       </Button>

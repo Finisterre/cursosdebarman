@@ -16,6 +16,12 @@ export type CreateProductPayload = {
   featured?: boolean;
   price?: number | null;
   variantOptions?: Record<string, OptionByType[]> | null;
+  meta_title?: string | null;
+  meta_description?: string | null;
+  meta_keywords?: string | null;
+  meta_image?: string | null;
+  canonical_url?: string | null;
+  no_index?: boolean;
 };
 
 export async function createProductAction(
@@ -38,6 +44,12 @@ export async function createProductAction(
       price,
       category_id: payload.category_id ?? null,
       featured: payload.featured ?? false,
+      meta_title: payload.meta_title?.trim() || null,
+      meta_description: payload.meta_description?.trim() || null,
+      meta_keywords: payload.meta_keywords?.trim() || null,
+      meta_image: payload.meta_image?.trim() || null,
+      canonical_url: payload.canonical_url?.trim() || null,
+      no_index: payload.no_index ?? false,
     });
   }
 
@@ -47,6 +59,12 @@ export async function createProductAction(
     description: payload.description.trim(),
     category_id: payload.category_id ?? null,
     featured: payload.featured ?? false,
+    meta_title: payload.meta_title?.trim() || null,
+    meta_description: payload.meta_description?.trim() || null,
+    meta_keywords: payload.meta_keywords?.trim() || null,
+    meta_image: payload.meta_image?.trim() || null,
+    canonical_url: payload.canonical_url?.trim() || null,
+    no_index: payload.no_index ?? false,
   });
 
   if (!result.ok || !result.id) return result;

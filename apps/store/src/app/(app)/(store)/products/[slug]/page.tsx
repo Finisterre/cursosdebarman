@@ -1,7 +1,11 @@
+import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { getFeaturedProducts, getProductWithVariants } from "@/lib/products";
+import { getFeaturedProducts, getProductWithVariants, getProductBySlug } from "@/lib/products";
 import { getProductImages } from "@/lib/product-images";
+import { getSiteSettings } from "@/lib/site-settings";
+import { absoluteUrl } from "@/lib/seo";
 import { ProductDetailContent } from "@/components/store/product-detail-content";
+import { ProductJsonLd } from "@/components/store/product-json-ld";
 import { Badge } from "@/components/ui/badge";
 import { ProductList } from "@/components/store/product-list";
 import Link from "next/link";
@@ -11,11 +15,52 @@ import { getCategoryById } from "@/lib/categories";
 export const revalidate = 0;
 
 type ProductDetailPageProps = {
-  params: { slug: string };
+  params: Promise<{ slug: string }>;
 };
 
+export async function generateMetadata({ params }: ProductDetailPageProps): Promise<Metadata> {
+  const { slug } = await params;
+  const [product, settings] = await Promise.all([getProductBySlug(slug), getSiteSettings()]);
+  if (!product) return { title: "Producto no encontrado" };
+
+  const title = product.meta_title?.trim() || product.name || settings?.default_meta_title || settings?.site_name || "Producto";
+  const description =
+    product.meta_description?.trim() ||
+    product.description?.slice(0, 160) ||
+    settings?.default_meta_description?.trim() ||
+    undefined;
+  const image =
+    product.meta_image?.trim() ||
+    product.image_url?.trim() ||
+    settings?.default_meta_image?.trim() ||
+    undefined;
+  const canonical = product.canonical_url?.trim() || absoluteUrl(`/products/${product.slug}`);
+  const noIndex = product.no_index ?? false;
+
+  return {
+    title,
+    description,
+    openGraph: {
+      title: product.meta_title?.trim() || product.name,
+      description: description ?? undefined,
+      url: canonical,
+      images: image ? [{ url: image }] : undefined,
+      type: "website",
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: product.meta_title?.trim() || product.name,
+      description: description ?? undefined,
+      images: image ? [image] : undefined,
+    },
+    alternates: { canonical },
+    robots: { index: !noIndex, follow: true },
+  };
+}
+
 export default async function ProductDetailPage({ params }: ProductDetailPageProps) {
-  const product = await getProductWithVariants(params.slug);
+  const { slug } = await params;
+  const product = await getProductWithVariants(slug);
   const featured = await getFeaturedProducts();
   const category = await getCategoryById(product?.category_id ?? "");
 
@@ -39,6 +84,7 @@ export default async function ProductDetailPage({ params }: ProductDetailPagePro
 
   return (
     <>
+      <ProductJsonLd product={product} />
       <Breadcrumb
         root={{ label: "Inicio", href: "/" }}
         firstSegment={{
@@ -46,20 +92,22 @@ export default async function ProductDetailPage({ params }: ProductDetailPagePro
           href: `/${category?.slug ?? ""}`,
         }}
       />
-      <ProductDetailContent product={productWithImages}>
-        <div className="space-y-2">
-          {product.featured && <Badge variant="secondary">Destacado</Badge>}
-          <h1 className="text-3xl font-semibold">{product.name}</h1>
-        </div>
-        <p className="text-muted-foreground">{product.description}</p>
-      </ProductDetailContent>
-      <section className="space-y-6 mt-20">
-        <div className="flex items-center justify-between">
+      <article itemScope itemType="https://schema.org/Product">
+        <ProductDetailContent product={productWithImages}>
+          <header className="space-y-2">
+            {product.featured && <Badge variant="secondary">Destacado</Badge>}
+            <h1 className="text-3xl font-semibold">{product.name}</h1>
+          </header>
+          <p className="text-muted-foreground">{product.description}</p>
+        </ProductDetailContent>
+      </article>
+      <section className="space-y-6 mt-20" aria-label="Productos destacados">
+        <header className="flex items-center justify-between">
           <h2 className="text-2xl font-semibold">Destacados</h2>
           <Link href="/products" className="text-sm text-muted-foreground hover:text-foreground">
             Ver todo
           </Link>
-        </div>
+        </header>
         <ProductList products={featured} />
       </section>
     </>

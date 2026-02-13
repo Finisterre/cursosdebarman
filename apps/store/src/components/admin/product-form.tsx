@@ -13,6 +13,7 @@ import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "@/components/ui/use-toast";
 import { uploadProductImage } from "@/lib/uploadProductImage";
+import { SEOFormSection } from "@/components/admin/seo-form-section";
 
 type ProductFormProps = {
   initialValues?: ProductFormValues;
@@ -61,6 +62,12 @@ export function ProductForm({
       description: "",
       category_id: "",
       featured: false,
+      meta_title: "",
+      meta_description: "",
+      meta_keywords: "",
+      meta_image: "",
+      canonical_url: "",
+      no_index: false,
     },
   });
 
@@ -242,6 +249,17 @@ export function ProductForm({
       </div>
 
       </div>
+
+      <SEOFormSection
+        form={form}
+        titleField="meta_title"
+        descriptionField="meta_description"
+        keywordsField="meta_keywords"
+        imageField="meta_image"
+        canonicalField="canonical_url"
+        noIndexField="no_index"
+      />
+
       <Button type="submit" disabled={isSubmitting}>
         {isSubmitting ? "Guardando..." : "Guardar"}
       </Button>

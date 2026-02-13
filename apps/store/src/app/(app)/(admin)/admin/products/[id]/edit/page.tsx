@@ -60,6 +60,12 @@ export default async function EditProductPage({ params }: EditProductPageProps) 
           description: product.description,
           category_id: product.category_id ?? "",
           featured: product.featured ?? false,
+          meta_title: product.meta_title ?? "",
+          meta_description: product.meta_description ?? "",
+          meta_keywords: product.meta_keywords ?? "",
+          meta_image: product.meta_image ?? "",
+          canonical_url: product.canonical_url ?? "",
+          no_index: product.no_index ?? false,
         }}
         initialImageUrl={product.image_url}
         categories={categories}

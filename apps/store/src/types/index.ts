@@ -42,6 +42,14 @@ export type Product = {
   variants?: Product[];
   variantValues?: ProductVariantValue[];
   images?: ProductImage[];
+  /** SEO */
+  meta_title?: string | null;
+  meta_description?: string | null;
+  meta_keywords?: string | null;
+  meta_image?: string | null;
+  canonical_url?: string | null;
+  no_index?: boolean | null;
+  updated_at?: string | null;
 };
 
 export type Category = {
@@ -53,6 +61,14 @@ export type Category = {
   is_active: boolean;
   position?: number;
   children?: Category[];
+  /** SEO */
+  meta_title?: string | null;
+  meta_description?: string | null;
+  meta_keywords?: string | null;
+  meta_image?: string | null;
+  canonical_url?: string | null;
+  no_index?: boolean | null;
+  updated_at?: string | null;
 };
 
 export type CartItem = {
@@ -105,6 +121,19 @@ export type StoreSettings = {
   id: string;
   currency: string;
   storeName: string;
+};
+
+export type SiteSettings = {
+  id: string;
+  site_name: string;
+  default_meta_title: string | null;
+  default_meta_description: string | null;
+  default_meta_keywords: string | null;
+  default_meta_image: string | null;
+  google_verification: string | null;
+  google_analytics_id: string | null;
+  created_at: string;
+  updated_at: string;
 };
 
 export type Banner = {

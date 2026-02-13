@@ -9,6 +9,12 @@ type CategoryPayload = {
   description?: string;
   parent_id?: string | null;
   is_active: boolean;
+  meta_title?: string | null;
+  meta_description?: string | null;
+  meta_keywords?: string | null;
+  meta_image?: string | null;
+  canonical_url?: string | null;
+  no_index?: boolean;
 };
 
 function normalizeCategory(payload: CategoryPayload) {
@@ -41,7 +47,13 @@ export async function POST(request: Request) {
       slug: parsed.data.slug,
       description,
       parent_id: parentId,
-      is_active: parsed.data.is_active
+      is_active: parsed.data.is_active,
+      meta_title: (parsed.data.meta_title?.trim() || null) ?? null,
+      meta_description: (parsed.data.meta_description?.trim() || null) ?? null,
+      meta_keywords: (parsed.data.meta_keywords?.trim() || null) ?? null,
+      meta_image: (parsed.data.meta_image?.trim() || null) ?? null,
+      canonical_url: (parsed.data.canonical_url?.trim() || null) ?? null,
+      no_index: parsed.data.no_index ?? false,
     })
     .select("id")
     .single();
@@ -84,7 +96,13 @@ export async function PUT(request: Request) {
       slug: parsed.data.slug,
       description,
       parent_id: parentId,
-      is_active: parsed.data.is_active
+      is_active: parsed.data.is_active,
+      meta_title: (parsed.data.meta_title?.trim() || null) ?? null,
+      meta_description: (parsed.data.meta_description?.trim() || null) ?? null,
+      meta_keywords: (parsed.data.meta_keywords?.trim() || null) ?? null,
+      meta_image: (parsed.data.meta_image?.trim() || null) ?? null,
+      canonical_url: (parsed.data.canonical_url?.trim() || null) ?? null,
+      no_index: parsed.data.no_index ?? false,
     })
     .eq("id", payload.id);
 

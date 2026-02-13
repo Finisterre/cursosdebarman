@@ -9,6 +9,13 @@ type CategoryRow = {
   description: string | null;
   parent_id: string | null;
   is_active: boolean;
+  meta_title?: string | null;
+  meta_description?: string | null;
+  meta_keywords?: string | null;
+  meta_image?: string | null;
+  canonical_url?: string | null;
+  no_index?: boolean | null;
+  updated_at?: string | null;
 };
 
 function mapCategory(row: CategoryRow): Category {
@@ -18,7 +25,14 @@ function mapCategory(row: CategoryRow): Category {
     slug: row.slug,
     description: row.description ?? undefined,
     parent_id: row.parent_id ?? null,
-    is_active: row.is_active
+    is_active: row.is_active,
+    meta_title: row.meta_title ?? null,
+    meta_description: row.meta_description ?? null,
+    meta_keywords: row.meta_keywords ?? null,
+    meta_image: row.meta_image ?? null,
+    canonical_url: row.canonical_url ?? null,
+    no_index: row.no_index ?? null,
+    updated_at: row.updated_at ?? null,
   };
 }
 
@@ -39,7 +53,7 @@ function sortCategories(categories: Category[]): Category[] {
 export async function getCategories(): Promise<Category[]> {
   const { data, error } = await supabaseServer
     .from("categories")
-    .select("id, name, slug, description, parent_id, is_active")
+    .select("*")
     .order("name", { ascending: true });
 
 
@@ -53,7 +67,7 @@ export async function getCategories(): Promise<Category[]> {
 export async function getCategoryById(id: string): Promise<Category | null> {
   const { data, error } = await supabaseServer
     .from("categories")
-    .select("id, name, slug, description, parent_id, is_active")
+    .select("*")
     .eq("id", id)
     .single();
 
@@ -67,7 +81,7 @@ export async function getCategoryById(id: string): Promise<Category | null> {
 export async function getCategoryBySlug(slug: string): Promise<Category | null> {
   const { data, error } = await supabaseServer
     .from("categories")
-    .select("id, name, slug, description, parent_id, is_active")
+    .select("*")
     .eq("slug", slug)
     .single();
 
@@ -81,7 +95,7 @@ export async function getCategoryBySlug(slug: string): Promise<Category | null> 
 export async function getRootCategories(): Promise<Category[]> {
   const { data, error } = await supabaseServer
     .from("categories")
-    .select("id, name, slug, description, parent_id, is_active")
+    .select("*")
     .is("parent_id", null)
     .eq("is_active", true)
     .order("name", { ascending: true });
@@ -164,5 +178,19 @@ export async function deleteCategory(id: string): Promise<{ ok: boolean; error?:
     return { ok: false, error: error.message };
   }
   return { ok: true };
+}
+
+/** Para sitemap: categorías activas con slug y updated_at. */
+export async function getCategoriesForSitemap(): Promise<{ slug: string; updated_at: string | null }[]> {
+  const { data, error } = await supabaseServer
+    .from("categories")
+    .select("slug, updated_at")
+    .eq("is_active", true);
+
+  if (error || !data) return [];
+  return data.map((r: { slug: string; updated_at: string | null }) => ({
+    slug: r.slug,
+    updated_at: r.updated_at ?? null,
+  }));
 }
 

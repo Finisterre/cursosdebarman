@@ -13,13 +13,20 @@ type ProductRow = {
   price: number | null;
   sale_price: number | null;
   stock: number | null;
-  is_active: boolean | null;
+  is_active?: boolean | null;
   image_url: string | null;
   featured: boolean | null;
   category_id: string | null;
   parent_product_id: string | null;
   sku: string | null;
   is_variant: boolean | null;
+  meta_title?: string | null;
+  meta_description?: string | null;
+  meta_keywords?: string | null;
+  meta_image?: string | null;
+  canonical_url?: string | null;
+  no_index?: boolean | null;
+  updated_at?: string | null;
 };
 
 function mapProductRow(row: ProductRow): Product {
@@ -37,6 +44,13 @@ function mapProductRow(row: ProductRow): Product {
     parent_product_id: row.parent_product_id ?? null,
     sku: row.sku ?? null,
     is_variant: row.is_variant ?? false,
+    meta_title: row.meta_title ?? null,
+    meta_description: row.meta_description ?? null,
+    meta_keywords: row.meta_keywords ?? null,
+    meta_image: row.meta_image ?? null,
+    canonical_url: row.canonical_url ?? null,
+    no_index: row.no_index ?? null,
+    updated_at: row.updated_at ?? null,
   };
 }
 
@@ -237,6 +251,12 @@ export async function createSimpleProduct(data: {
   featured?: boolean;
   sku?: string | null;
   stock?: number | null;
+  meta_title?: string | null;
+  meta_description?: string | null;
+  meta_keywords?: string | null;
+  meta_image?: string | null;
+  canonical_url?: string | null;
+  no_index?: boolean;
 }): Promise<{ ok: boolean; id?: string; error?: string }> {
   const { data: row, error } = await supabaseAdmin
     .from("products")
@@ -252,6 +272,12 @@ export async function createSimpleProduct(data: {
       stock: data.stock ?? null,
       is_variant: false,
       parent_product_id: null,
+      meta_title: data.meta_title?.trim() || null,
+      meta_description: data.meta_description?.trim() || null,
+      meta_keywords: data.meta_keywords?.trim() || null,
+      meta_image: data.meta_image?.trim() || null,
+      canonical_url: data.canonical_url?.trim() || null,
+      no_index: data.no_index ?? false,
     })
     .select("id")
     .single();
@@ -270,6 +296,12 @@ export async function createConfigurableProduct(data: {
   category_id?: string | null;
   image_url?: string | null;
   featured?: boolean;
+  meta_title?: string | null;
+  meta_description?: string | null;
+  meta_keywords?: string | null;
+  meta_image?: string | null;
+  canonical_url?: string | null;
+  no_index?: boolean;
 }): Promise<{ ok: boolean; id?: string; error?: string }> {
   const { data: row, error } = await supabaseAdmin
     .from("products")
@@ -283,6 +315,12 @@ export async function createConfigurableProduct(data: {
       featured: data.featured ?? false,
       is_variant: false,
       parent_product_id: null,
+      meta_title: data.meta_title?.trim() || null,
+      meta_description: data.meta_description?.trim() || null,
+      meta_keywords: data.meta_keywords?.trim() || null,
+      meta_image: data.meta_image?.trim() || null,
+      canonical_url: data.canonical_url?.trim() || null,
+      no_index: data.no_index ?? false,
     })
     .select("id")
     .single();
@@ -453,5 +491,20 @@ async function attachVariantsToProducts(products: Product[]): Promise<Product[]>
   return products.map((p) => ({
     ...p,
     variants: childrenByParentId.get(p.id) ?? [],
+  }));
+}
+
+/** Para sitemap: productos padre (no variantes) con slug y updated_at. */
+export async function getProductsForSitemap(): Promise<{ slug: string; updated_at: string | null }[]> {
+  const { data, error } = await supabaseServer
+    .from("products")
+    .select("slug, updated_at")
+    .or("is_variant.eq.false,is_variant.is.null")
+    .order("updated_at", { ascending: false });
+
+  if (error || !data) return [];
+  return data.map((r: { slug: string; updated_at: string | null }) => ({
+    slug: r.slug,
+    updated_at: r.updated_at ?? null,
   }));
 }

@@ -5,7 +5,14 @@ export const categorySchema = z.object({
   slug: z.string().min(2, "Slug requerido"),
   description: z.string().optional().or(z.literal("")),
   parent_id: z.string().optional().or(z.literal("")).nullable(),
-  is_active: z.boolean()
+  is_active: z.boolean(),
+  // SEO
+  meta_title: z.string().optional().or(z.literal("")),
+  meta_description: z.string().optional().or(z.literal("")),
+  meta_keywords: z.string().optional().or(z.literal("")),
+  meta_image: z.string().optional().or(z.literal("")),
+  canonical_url: z.string().optional().or(z.literal("")),
+  no_index: z.boolean().optional().default(false),
 });
 
 export type CategoryFormValues = z.infer<typeof categorySchema>;

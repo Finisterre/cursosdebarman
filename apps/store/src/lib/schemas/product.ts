@@ -8,6 +8,13 @@ export const productSchema = z.object({
   description: z.string().min(10, "Descripción requerida"),
   category_id: z.string().optional().or(z.literal("")).nullable(),
   featured: z.boolean().optional().default(false),
+  // SEO
+  meta_title: z.string().optional().or(z.literal("")),
+  meta_description: z.string().optional().or(z.literal("")),
+  meta_keywords: z.string().optional().or(z.literal("")),
+  meta_image: z.string().optional().or(z.literal("")),
+  canonical_url: z.string().optional().or(z.literal("")),
+  no_index: z.boolean().optional().default(false),
 });
 
 export type ProductFormValues = z.infer<typeof productSchema>;

@@ -39,7 +39,13 @@ export default async function EditCategoryPage({ params }: EditCategoryPageProps
           slug: category.slug,
           description: category.description ?? "",
           parent_id: category.parent_id ?? "",
-          is_active: category.is_active
+          is_active: category.is_active,
+          meta_title: category.meta_title ?? "",
+          meta_description: category.meta_description ?? "",
+          meta_keywords: category.meta_keywords ?? "",
+          meta_image: category.meta_image ?? "",
+          canonical_url: category.canonical_url ?? "",
+          no_index: category.no_index ?? false,
         }}
       />
     </div>

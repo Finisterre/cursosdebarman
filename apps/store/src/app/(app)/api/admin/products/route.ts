@@ -12,6 +12,12 @@ type ProductPayload = {
   image_url?: string;
   category_id?: string | null;
   featured?: boolean;
+  meta_title?: string | null;
+  meta_description?: string | null;
+  meta_keywords?: string | null;
+  meta_image?: string | null;
+  canonical_url?: string | null;
+  no_index?: boolean;
 };
 
 export async function POST(request: Request) {
@@ -37,6 +43,12 @@ export async function POST(request: Request) {
       image_url: payload.image_url ?? null,
       category_id: categoryId,
       featured: parsed.data.featured ?? false,
+      meta_title: (parsed.data.meta_title?.trim() || null) ?? null,
+      meta_description: (parsed.data.meta_description?.trim() || null) ?? null,
+      meta_keywords: (parsed.data.meta_keywords?.trim() || null) ?? null,
+      meta_image: (parsed.data.meta_image?.trim() || null) ?? null,
+      canonical_url: (parsed.data.canonical_url?.trim() || null) ?? null,
+      no_index: parsed.data.no_index ?? false,
     })
     .select("id")
     .single();
@@ -76,6 +88,12 @@ export async function PUT(request: Request) {
     image_url: payload.image_url ?? undefined,
     category_id: categoryId ?? null,
     featured: parsed.data.featured ?? false,
+    meta_title: (parsed.data.meta_title?.trim() || null) ?? null,
+    meta_description: (parsed.data.meta_description?.trim() || null) ?? null,
+    meta_keywords: (parsed.data.meta_keywords?.trim() || null) ?? null,
+    meta_image: (parsed.data.meta_image?.trim() || null) ?? null,
+    canonical_url: (parsed.data.canonical_url?.trim() || null) ?? null,
+    no_index: parsed.data.no_index ?? false,
   };
   if (payload.stock !== undefined) {
     const raw = payload.stock;
