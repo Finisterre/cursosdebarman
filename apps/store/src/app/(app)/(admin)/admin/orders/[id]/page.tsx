@@ -3,6 +3,9 @@ import { getOrderById } from "@/lib/orders";
 import { OrderStatusForm } from "@/components/admin/order-status-form";
 import { updateOrderStatusAction } from "./actions";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { formatDateTime } from "@/lib/utils";
+
+
 
 type AdminOrderDetailPageProps = {
   params: { id: string };
@@ -64,7 +67,7 @@ export default async function AdminOrderDetailPage({ params }: AdminOrderDetailP
               {order.statusHistory.map((entry) => (
                 <TableRow key={entry.id}>
                   <TableCell className="text-muted-foreground text-sm">
-                    {new Date(entry.createdAt).toLocaleString("es-AR")}
+                    {formatDateTime(entry.createdAt)}
                   </TableCell>
                   <TableCell>{entry.previousStatus ?? "—"}</TableCell>
                   <TableCell className="font-medium">{entry.newStatus}</TableCell>

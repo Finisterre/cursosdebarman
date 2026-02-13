@@ -3,6 +3,7 @@ import { getOrders } from "@/lib/orders";
 import type { OrderStatus } from "@/types";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { formatDateTime } from "@/lib/utils";
 
 export const revalidate = 0;
 
@@ -18,6 +19,8 @@ const statusLabels: Record<
 
 export default async function AdminOrdersPage() {
   const orders = await getOrders();
+
+
   return (
     <div className="space-y-6">
       <div>
@@ -51,7 +54,7 @@ export default async function AdminOrdersPage() {
                   {statusLabels[order.status]?.label ?? order.status}
                 </Badge>
               </TableCell>
-              <TableCell>{order.createdAt}</TableCell>
+              <TableCell>{formatDateTime(order.createdAt)}</TableCell>
             </TableRow>
           ))}
         </TableBody>

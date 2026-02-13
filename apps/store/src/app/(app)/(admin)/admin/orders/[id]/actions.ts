@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { supabaseAdmin } from "@/lib/supabase/admin";
+import { decrementStockForOrder } from "@/lib/orders";
 import type { OrderStatus } from "@/types";
 
 export async function updateOrderStatusAction(orderId: string, newStatus: OrderStatus) {
@@ -33,6 +34,10 @@ export async function updateOrderStatusAction(orderId: string, newStatus: OrderS
     changed_by: "admin",
     note: null
   });
+
+  if (newStatus === "paid" && previousStatus !== "paid") {
+    await decrementStockForOrder(orderId);
+  }
 
   revalidatePath(`/admin/orders/${orderId}`);
   revalidatePath("/admin/orders");

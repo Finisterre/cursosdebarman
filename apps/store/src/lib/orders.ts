@@ -74,11 +74,21 @@ export async function createOrderAndPreference(
       p_idempotency_key: cartData.idempotencyKey ?? null
     });
 
+    console.log("[orders] Supabase RPC create_order_with_items respuesta", {
+      data: rpcResult,
+      error: rpcError,
+      payload: { total, itemsCount: itemsForRpc.length, productIds: itemsForRpc.map((i) => i.product_id) }
+    });
+
     if (rpcError) {
       console.error("[orders] create_order_with_items RPC error", rpcError);
+      const message =
+        rpcError.code === "23503"
+          ? "Uno de los productos no existe en la base de datos (revisá product_id / variante)."
+          : "Error al crear la orden";
       return {
         ok: false,
-        message: "Error al crear la orden",
+        message,
         code: "ORDER_CREATE_FAILED",
         details: rpcError
       };
@@ -157,6 +167,62 @@ export async function createOrderAndPreference(
   }
 }
 
+/**
+ * Descuenta el stock de cada producto de la orden (solo si status = paid y aún no se descontó).
+ * Idempotente: usa orders.stock_decremented para no descontar dos veces.
+ */
+export async function decrementStockForOrder(orderId: string): Promise<{ ok: boolean; error?: string }> {
+  const { data: order, error: orderError } = await supabaseAdmin
+    .from("orders")
+    .select("id, status, stock_decremented")
+    .eq("id", orderId)
+    .single();
+
+  if (orderError || !order) {
+    return { ok: false, error: "Orden no encontrada" };
+  }
+
+  const row = order as { status?: string; stock_decremented?: boolean };
+  if (row.status !== "paid") {
+    return { ok: true };
+  }
+  if (row.stock_decremented === true) {
+    return { ok: true };
+  }
+
+  const { data: items, error: itemsError } = await supabaseAdmin
+    .from("order_items")
+    .select("product_id, quantity")
+    .eq("order_id", orderId);
+
+  if (itemsError || !items?.length) {
+    return { ok: true };
+  }
+
+  for (const item of items as { product_id: string; quantity: number }[]) {
+    const { data: product } = await supabaseAdmin
+      .from("products")
+      .select("stock")
+      .eq("id", item.product_id)
+      .single();
+    const current = product != null && (product as { stock?: number | null }).stock != null
+      ? Number((product as { stock: number }).stock)
+      : 0;
+    const newStock = current - (item.quantity ?? 0);
+    await supabaseAdmin
+      .from("products")
+      .update({ stock: newStock })
+      .eq("id", item.product_id);
+  }
+
+  await supabaseAdmin
+    .from("orders")
+    .update({ stock_decremented: true, updated_at: new Date().toISOString() })
+    .eq("id", orderId);
+
+  return { ok: true };
+}
+
 /** Marca la orden como pending_missing_preference para debugging. */
 async function markOrderPendingMissingPreference(orderId: string): Promise<void> {
   const { error } = await supabaseAdmin
@@ -211,7 +277,7 @@ export async function updateOrderFromMpReturn(params: MpReturnParams): Promise<{
 
   const { data: existing, error: fetchError } = await supabaseAdmin
     .from("orders")
-    .select("id, status")
+    .select("id, status, stock_decremented")
     .eq("id", orderId)
     .single();
 
@@ -239,6 +305,7 @@ export async function updateOrderFromMpReturn(params: MpReturnParams): Promise<{
       changed_by: "user",
       note: "Pago confirmado (retorno desde Mercado Pago)"
     });
+    await decrementStockForOrder(orderId);
   }
 
   return { ok: true, orderId };
