@@ -12,6 +12,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Breadcrumb } from "@/components/ui/breadcrumb";
+import { ArrowRight, Trash } from "lucide-react";
 
 export default function CartPage() {
   const { items, removeItem, updateQuantity, subtotal } = useCart();
@@ -47,11 +48,11 @@ export default function CartPage() {
         </TableHeader>
         <TableBody>
           {items.map((item) => (
-            <TableRow key={item.productId}>
+            <TableRow key={item.productId} className="text-sm md:text-base">
               <TableCell className="font-medium">{item.name ?? item.productId}</TableCell>
               <TableCell>
                 <input
-                  className="h-9 w-20 rounded-md border border-input bg-background px-2 text-sm"
+                  className="h-9 md:h-10 w-16 md:w-20 rounded-md border border-input bg-background px-1 md:px-2 text-sm"
                   type="number"
                   min={1}
                   value={item.quantity}
@@ -65,8 +66,8 @@ export default function CartPage() {
                 ${(item.price * item.quantity).toLocaleString("es-AR")}
               </TableCell>
               <TableCell>
-                <Button variant="ghost" onClick={() => removeItem(item.productId)}>
-                  Quitar
+                <Button variant="secondary" onClick={() => removeItem(item.productId)}>
+                 <span className="hidden md:block">Quitar</span> <Trash size={16} />
                 </Button>
               </TableCell>
             </TableRow>
@@ -74,11 +75,14 @@ export default function CartPage() {
         </TableBody>
       </Table>
       <div className="flex items-center justify-between rounded-lg border bg-muted/30 p-4">
-        <span className="text-sm text-muted-foreground">Subtotal</span>
+        <span className="text-sm text-muted-foreground">Total</span>
         <span className="text-lg font-semibold">${subtotal.toLocaleString("es-AR")}</span>
       </div>
       <Button asChild>
-        <Link href="/checkout">Continuar al checkout</Link>
+        <Link href="/checkout" className="group inline-flex items-center gap-2">
+          Continuar con el Pago{" "}
+          <ArrowRight size={16} className="transition-transform duration-200 group-hover:translate-x-1 group-hover:scale-110 group-hover:text-yellow-500" />
+        </Link>
       </Button>
     </div>
   );

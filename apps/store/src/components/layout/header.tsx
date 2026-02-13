@@ -7,7 +7,7 @@ import type { Category } from "@/types";
 import { Button } from "@/components/ui/button";
 import { Container } from "@/components/layout/container";
 import Image from "next/image";
-import { Menu, X } from "lucide-react";
+import { Menu, ShoppingCart, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 type HeaderProps = {
@@ -38,7 +38,9 @@ export function Header({ categories }: HeaderProps) {
           ))}
         </nav>
         <Button asChild variant="secondary" className="hidden md:inline-flex">
-          <Link href="/cart">Carrito ({totalItems})</Link>
+          <Link href="/cart">Carrito {totalItems > 0 ? <span className="text-xs text-white h-5 w-5 bg-black rounded-full text-center leading-5">{totalItems}</span> : <ShoppingCart size={16} />}
+    
+          </Link>
         </Button>
 
         {/* Mobile: hamburger */}
