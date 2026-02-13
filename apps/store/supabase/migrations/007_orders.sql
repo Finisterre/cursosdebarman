@@ -77,12 +77,15 @@ DECLARE
   v_unit_price numeric;
   v_subtotal numeric;
 BEGIN
-  -- Idempotencia: si ya existe orden con esta key y status pending/paid, devolverla
+  -- Idempotencia: solo reutilizar si la orden es reciente (últimos 2 min) para evitar duplicados al refrescar.
+  -- Pasados 2 minutos, el mismo carrito puede crear una orden nueva (misma compra en otra ocasión).
   IF p_idempotency_key IS NOT NULL AND trim(p_idempotency_key) != '' THEN
     SELECT id, preference_id INTO v_order_id, v_preference_id
     FROM orders
     WHERE idempotency_key = p_idempotency_key
       AND status IN ('pending', 'paid')
+      AND created_at > (now() - interval '2 minutes')
+    ORDER BY created_at DESC
     LIMIT 1;
     IF FOUND THEN
       RETURN jsonb_build_object(

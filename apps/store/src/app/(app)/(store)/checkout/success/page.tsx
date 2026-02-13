@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { updateOrderFromMpReturn, type MpReturnParams } from "@/lib/orders";
+import { getOrderById, updateOrderFromMpReturn, type MpReturnParams } from "@/lib/orders";
+import { CheckCircle } from "lucide-react";
 
 /**
  * Query params que Mercado Pago envía al volver del checkout (según docs).
@@ -50,31 +51,43 @@ export default async function CheckoutSuccessPage({
     await updateOrderFromMpReturn(mpParams);
   }
 
-  const paramEntries = Object.entries(params).filter(
-    ([_, value]) => value !== undefined && value !== ""
-  );
+  const order = mpParams.external_reference ? await getOrderById(mpParams.external_reference) : null;
 
   return (
     <div className="mx-auto max-w-lg space-y-6 text-center">
-      <h1 className="text-2xl font-semibold">¡Pedido confirmado!</h1>
+      <h1 className="text-2xl font-semibold flex items-center justify-center gap-2">
+        ¡Pedido confirmado! <CheckCircle size={24} className="text-green-500" />
+      </h1>
       <p className="text-muted-foreground">
         Recibimos tu orden. Pronto vas a recibir un email con el detalle.
       </p>
 
-      {paramEntries.length > 0 && (
+      {order?.items && order.items.length > 0 && (
         <div className="rounded-lg border bg-muted/30 p-4 text-left">
-          <p className="mb-2 text-sm font-medium text-muted-foreground">
-            Datos recibidos por query params (Mercado Pago):
-          </p>
-          <pre className="overflow-auto text-xs">
-            {JSON.stringify(
-              Object.fromEntries(
-                paramEntries.map(([k, v]) => [k, Array.isArray(v) ? v.join(",") : v])
-              ),
-              null,
-              2
-            )}
-          </pre>
+          <p className="mb-3 text-sm font-medium text-muted-foreground">Resumen del pedido</p>
+          <ul className="space-y-3">
+            {order.items.map((item) => (
+              <li key={item.id} className="flex flex-wrap items-baseline justify-between gap-2 border-b border-border/50 pb-3 last:border-0 last:pb-0">
+                <div>
+                  <span className="font-medium">{item.name}</span>
+                  {item.sku && (
+                    <span className="ml-2 text-sm text-muted-foreground">({item.sku})</span>
+                  )}
+                </div>
+                <div className="text-sm">
+                  <span className="text-muted-foreground">
+                    ${item.price.toLocaleString("es-AR")} × {item.quantity}
+                  </span>
+                  <span className="ml-2 font-medium">
+                    ${(item.subtotal ?? item.price * item.quantity).toLocaleString("es-AR")}
+                  </span>
+                </div>
+              </li>
+            ))}
+          </ul>
+          <div className="mt-3 flex justify-end border-t pt-3">
+            <span className="font-semibold">Total: ${order.total.toLocaleString("es-AR")}</span>
+          </div>
         </div>
       )}
 

@@ -277,7 +277,7 @@ export async function updateOrderFromMpReturn(params: MpReturnParams): Promise<{
 
   const { data: existing, error: fetchError } = await supabaseAdmin
     .from("orders")
-    .select("id, status, stock_decremented")
+    .select("id, status")
     .eq("id", orderId)
     .single();
 
