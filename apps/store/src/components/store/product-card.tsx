@@ -25,7 +25,8 @@ export function ProductCard({ product }: { product: Product }) {
       : "Consultar";
 
   return (
-    <Card className="flex h-full flex-col overflow-hidden">
+    <Card className="flex h-full flex-col overflow-hidden ">
+      <Link href={`/products/${product.slug}`}>
       <div className="relative h-56 w-full shrink-0">
         <Image
           src={imageUrl}
@@ -36,20 +37,15 @@ export function ProductCard({ product }: { product: Product }) {
         />
       </div>
       <CardContent className="flex-1 py-4">
-        <div className="flex items-center justify-between">
+        <div className=" flex flex-col  items-center justify-between">
           <h3 className="text-base font-semibold">{product.name}</h3>
           <span className="text-sm font-medium">{priceLabel}</span>
         </div>
         {/* <p className="text-sm text-muted-foreground">{product.description}</p> */}
       </CardContent>
-      <CardFooter className="mt-auto justify-end">
-        {/* <Button asChild variant="outline">
-          <Link href={`/products/${product.slug}`}>Ver detalle</Link>
-        </Button> */}
-        <Button asChild>
-          <Link href={`/products/${product.slug}`}>Comprar</Link>
-        </Button>
-      </CardFooter>
+    
+       </Link>
+       
     </Card>
   );
 }

@@ -13,6 +13,10 @@ const nextConfig = {
       {
         protocol: "https",
         hostname: "uvywhsighkfjrzyceijp.supabase.co"
+      },
+      {
+        protocol: "https",
+        hostname: "http2.mlstatic.com"
       }
     ]
   }

@@ -24,6 +24,9 @@ export function AdminHeader() {
           <Link href="/admin/orders" className="transition-colors hover:text-foreground">
             Pedidos
           </Link>
+          <Link href="/admin/banners" className="transition-colors hover:text-foreground">
+            Banners
+          </Link>
         </nav>
         <Button
           variant="secondary"

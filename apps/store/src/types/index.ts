@@ -106,3 +106,21 @@ export type StoreSettings = {
   currency: string;
   storeName: string;
 };
+
+export type Banner = {
+  id: string;
+  title: string;
+  subtitle?: string | null;
+  image_url: string;
+  mobile_image_url?: string | null;
+  link_url?: string | null;
+  link_text?: string | null;
+  position: "home_top" | "home_middle" | "home_bottom" | "hero" | "sidebar";
+  type: "image" | "slider" | "promo" | "video";
+  display_order: number;
+  is_active: boolean;
+  starts_at?: string | null;
+  ends_at?: string | null;
+  created_at: string;
+  updated_at: string;
+};
