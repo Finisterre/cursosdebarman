@@ -44,7 +44,7 @@ export default function CheckoutPage() {
               const cartPayload = {
                 items: items.map((item) => ({
                   productId: item.productId,
-                  sku: "sku" in item ? (item as { sku?: string }).sku : undefined,
+                  sku: item.sku ?? undefined,
                   name: item.name ?? item.productId,
                   unitPrice: item.price,
                   quantity: item.quantity

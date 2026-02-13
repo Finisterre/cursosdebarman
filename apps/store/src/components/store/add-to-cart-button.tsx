@@ -21,12 +21,13 @@ export function AddToCartButton({
   const price = selectedChild?.price ?? product.price ?? 0;
   const name = product.name;
   const image_url = product.image_url ?? undefined;
+  const sku = selectedChild?.sku ?? product.sku ?? undefined;
 
   return (
     <Button
       disabled={disabled || price <= 0}
       onClick={() => {
-        addItem({ productId, price, quantity: 1, name, image_url });
+        addItem({ productId, price, quantity: 1, name, image_url, sku });
       }}
     >
       Agregar al carrito

@@ -11,14 +11,31 @@ const statusLabels: Record<OrderStatus, string> = {
   cancelled: "Cancelado"
 };
 
+type UpdateOrderStatusAction = (orderId: string, status: OrderStatus) => Promise<{ ok: boolean; error?: string }>;
+
 export function OrderStatusForm({
+  orderId,
   status,
-  onUpdate
+  updateOrderStatusAction
 }: {
+  orderId: string;
   status: OrderStatus;
-  onUpdate?: (status: OrderStatus) => void;
+  updateOrderStatusAction: UpdateOrderStatusAction;
 }) {
   const [value, setValue] = useState<OrderStatus>(status);
+  const [isPending, setIsPending] = useState(false);
+
+  const handleSubmit = async () => {
+    setIsPending(true);
+    try {
+      const result = await updateOrderStatusAction(orderId, value);
+      if (!result.ok) {
+        console.error(result.error);
+      }
+    } finally {
+      setIsPending(false);
+    }
+  };
 
   return (
     <div className="flex flex-wrap items-center gap-3">
@@ -33,13 +50,8 @@ export function OrderStatusForm({
           </option>
         ))}
       </select>
-      <Button
-        variant="secondary"
-        onClick={() => {
-          onUpdate?.(value);
-        }}
-      >
-        Actualizar estado
+      <Button variant="secondary" onClick={handleSubmit} disabled={isPending}>
+        {isPending ? "Actualizando..." : "Actualizar estado"}
       </Button>
     </div>
   );

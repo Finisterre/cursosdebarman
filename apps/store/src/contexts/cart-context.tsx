@@ -3,7 +3,7 @@
 import React, { createContext, useContext, useEffect, useMemo, useState } from "react";
 import type { CartItem } from "@/types";
 
-type CartEntry = CartItem & { name?: string; image_url?: string | null };
+type CartEntry = CartItem & { name?: string; image_url?: string | null; sku?: string | null };
 
 type CartContextValue = {
   items: CartEntry[];
@@ -40,17 +40,17 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     }
   }, [items]);
 
-  const addItem = (entry: CartItem & { name?: string; image_url?: string | null }) => {
+  const addItem = (entry: CartItem & { name?: string; image_url?: string | null; sku?: string | null }) => {
     setItems((prev) => {
       const existing = prev.find((item) => item.productId === entry.productId);
       if (existing) {
         return prev.map((item) =>
           item.productId === entry.productId
-            ? { ...item, quantity: item.quantity + entry.quantity, name: entry.name ?? item.name, image_url: entry.image_url ?? item.image_url }
+            ? { ...item, quantity: item.quantity + entry.quantity, name: entry.name ?? item.name, image_url: entry.image_url ?? item.image_url, sku: entry.sku ?? item.sku }
             : item
         );
       }
-      return [...prev, { ...entry, name: entry.name, image_url: entry.image_url }];
+      return [...prev, { ...entry, name: entry.name, image_url: entry.image_url, sku: entry.sku }];
     });
   };
 

@@ -59,6 +59,7 @@ export type CartItem = {
   productId: string;
   price: number;
   quantity: number;
+  sku?: string | null;
 };
 
 export type Customer = {
@@ -74,9 +75,21 @@ export type OrderItem = {
   name: string;
   price: number;
   quantity: number;
+  subtotal?: number;
+  sku?: string | null;
 };
 
 export type OrderStatus = "pending" | "paid" | "fulfilled" | "cancelled";
+
+export type OrderStatusHistoryEntry = {
+  id: string;
+  orderId: string;
+  previousStatus: string | null;
+  newStatus: string;
+  changedBy: string;
+  note: string | null;
+  createdAt: string;
+};
 
 export type Order = {
   id: string;
@@ -85,6 +98,7 @@ export type Order = {
   status: OrderStatus;
   createdAt: string;
   items: OrderItem[];
+  statusHistory?: OrderStatusHistoryEntry[];
 };
 
 export type StoreSettings = {

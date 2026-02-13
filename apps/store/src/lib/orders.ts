@@ -1,6 +1,6 @@
 import { supabaseAdmin } from "@/lib/supabase/admin";
 import { createMercadoPagoPreference } from "@/lib/mercadopago";
-import type { Order } from "@/types";
+import type { Order, OrderItem, OrderStatusHistoryEntry } from "@/types";
 
 /** Ítem del carrito para crear orden (snapshot: name, sku, unitPrice, quantity). */
 export type CartItemInput = {
@@ -168,6 +168,82 @@ async function markOrderPendingMissingPreference(orderId: string): Promise<void>
   }
 }
 
+/** Parámetros que Mercado Pago envía al volver a la URL de éxito. */
+export type MpReturnParams = {
+  external_reference?: string;
+  payment_id?: string;
+  merchant_order_id?: string;
+  status?: string;
+  collection_id?: string;
+  collection_status?: string;
+  payment_type?: string;
+  preference_id?: string;
+};
+
+/**
+ * Actualiza la orden con los datos que Mercado Pago envía por query params
+ * al redirigir a /checkout/success. Idempotente (se puede llamar varias veces).
+ */
+export async function updateOrderFromMpReturn(params: MpReturnParams): Promise<{ ok: boolean; orderId?: string; error?: string }> {
+  const orderId = typeof params.external_reference === "string" ? params.external_reference.trim() : null;
+  if (!orderId) {
+    return { ok: false, error: "Falta external_reference" };
+  }
+
+  const paymentStatus = params.status ?? params.collection_status ?? null;
+  const newOrderStatus =
+    paymentStatus === "approved"
+      ? "paid"
+      : paymentStatus === "rejected"
+        ? "rejected"
+        : paymentStatus === "pending" || paymentStatus === "in_process"
+          ? "pending"
+          : null;
+
+  const updates: Record<string, unknown> = {
+    updated_at: new Date().toISOString()
+  };
+  if (params.payment_id != null && params.payment_id !== "") updates.payment_id = params.payment_id;
+  if (params.merchant_order_id != null && params.merchant_order_id !== "") updates.merchant_order_id = params.merchant_order_id;
+  if (paymentStatus != null) updates.payment_status = paymentStatus;
+  if (params.payment_type != null && params.payment_type !== "") updates.payment_type = params.payment_type;
+  if (newOrderStatus != null) updates.status = newOrderStatus;
+
+  const { data: existing, error: fetchError } = await supabaseAdmin
+    .from("orders")
+    .select("id, status")
+    .eq("id", orderId)
+    .single();
+
+  if (fetchError || !existing) {
+    console.error("[orders] updateOrderFromMpReturn: orden no encontrada", orderId, fetchError);
+    return { ok: false, orderId, error: "Orden no encontrada" };
+  }
+
+  const { error: updateError } = await supabaseAdmin
+    .from("orders")
+    .update(updates)
+    .eq("id", orderId);
+
+  if (updateError) {
+    console.error("[orders] updateOrderFromMpReturn: error al actualizar", orderId, updateError);
+    return { ok: false, orderId, error: updateError.message };
+  }
+
+  const previousStatus = (existing as { status?: string }).status ?? "pending";
+  if (newOrderStatus === "paid" && previousStatus !== "paid") {
+    await supabaseAdmin.from("order_status_history").insert({
+      order_id: orderId,
+      previous_status: previousStatus,
+      new_status: "paid",
+      changed_by: "user",
+      note: "Pago confirmado (retorno desde Mercado Pago)"
+    });
+  }
+
+  return { ok: true, orderId };
+}
+
 /**
  * Lista de pedidos. Conectar con Supabase cuando exista la tabla `orders`.
  */
@@ -184,12 +260,26 @@ export async function getOrders(): Promise<Order[]> {
 }
 
 /**
- * Pedido por id.
+ * Pedido por id, con ítems e historial de estado.
  */
 export async function getOrderById(id: string): Promise<Order | null> {
-  const { data, error } = await supabaseAdmin.from("orders").select("*").eq("id", id).single();
-  if (error || !data) return null;
-  return mapOrderRow(data);
+  const { data: orderRow, error: orderError } = await supabaseAdmin
+    .from("orders")
+    .select("*")
+    .eq("id", id)
+    .single();
+
+  if (orderError || !orderRow) return null;
+
+  const [itemsResult, historyResult] = await Promise.all([
+    supabaseAdmin.from("order_items").select("*").eq("order_id", id).order("created_at", { ascending: true }),
+    supabaseAdmin.from("order_status_history").select("*").eq("order_id", id).order("created_at", { ascending: true })
+  ]);
+
+  const order = mapOrderRow(orderRow as Record<string, unknown>);
+  order.items = (itemsResult.data ?? []).map((row: Record<string, unknown>) => mapOrderItemRow(row));
+  order.statusHistory = (historyResult.data ?? []).map((row: Record<string, unknown>) => mapStatusHistoryRow(row));
+  return order;
 }
 
 function mapOrderRow(row: Record<string, unknown>): Order {
@@ -201,5 +291,29 @@ function mapOrderRow(row: Record<string, unknown>): Order {
     status: (status === "paid" || status === "fulfilled" || status === "cancelled" ? status : "pending") as Order["status"],
     createdAt: (row.created_at as string) ?? "",
     items: []
+  };
+}
+
+function mapOrderItemRow(row: Record<string, unknown>): OrderItem {
+  return {
+    id: row.id as string,
+    productId: row.product_id as string,
+    name: (row.product_name as string) ?? "",
+    price: Number(row.unit_price) ?? 0,
+    quantity: Number(row.quantity) ?? 0,
+    subtotal: row.subtotal != null ? Number(row.subtotal) : undefined,
+    sku: (row.sku as string | null) ?? undefined
+  };
+}
+
+function mapStatusHistoryRow(row: Record<string, unknown>): OrderStatusHistoryEntry {
+  return {
+    id: row.id as string,
+    orderId: row.order_id as string,
+    previousStatus: (row.previous_status as string | null) ?? null,
+    newStatus: (row.new_status as string) ?? "",
+    changedBy: (row.changed_by as string) ?? "",
+    note: (row.note as string | null) ?? null,
+    createdAt: (row.created_at as string) ?? ""
   };
 }
