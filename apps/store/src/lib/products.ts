@@ -163,6 +163,22 @@ export async function getChildProducts(parentId: string): Promise<Product[]> {
   return (data ?? []).map((r) => mapProductRow(r as ProductRow));
 }
 
+/** Trae en una sola query todos los hijos de los productos padre (para listados). */
+async function getChildProductsByParentIds(parentIds: string[]): Promise<Product[]> {
+  if (parentIds.length === 0) return [];
+  const { data, error } = await supabaseServer
+    .from("products")
+    .select("*")
+    .in("parent_product_id", parentIds)
+    .order("slug");
+
+  if (error) {
+    console.error("[products] getChildProductsByParentIds", error);
+    return [];
+  }
+  return (data ?? []).map((r) => mapProductRow(r as ProductRow));
+}
+
 export async function getChildProductsWithVariantValues(
   parentId: string
 ): Promise<Product[]> {
@@ -379,9 +395,9 @@ export async function getProducts(): Promise<Product[]> {
     .order("name");
 
   if (error || !data) return [];
-  return data
-    .filter((r: ProductRow) => !(r as ProductRow).is_variant)
-    .map((r) => mapProductRow(r as ProductRow));
+  const rows = data.filter((r: ProductRow) => !(r as ProductRow).is_variant);
+  const products = rows.map((r) => mapProductRow(r as ProductRow));
+  return attachVariantsToProducts(products);
 }
 
 export async function getFeaturedProducts(): Promise<Product[]> {
@@ -393,9 +409,9 @@ export async function getFeaturedProducts(): Promise<Product[]> {
     .order("name");
 
   if (error || !data) return [];
-  return data
-    .filter((r: ProductRow) => !(r as ProductRow).is_variant)
-    .map((r) => mapProductRow(r as ProductRow));
+  const rows = data.filter((r: ProductRow) => !(r as ProductRow).is_variant);
+  const products = rows.map((r) => mapProductRow(r as ProductRow));
+  return attachVariantsToProducts(products);
 }
 
 export async function getProductsByCategoryId(categoryId: string): Promise<Product[]> {
@@ -407,7 +423,8 @@ export async function getProductsByCategoryId(categoryId: string): Promise<Produ
     .order("name");
 
   if (error || !data) return [];
-  return data.map((r) => mapProductRow(r as ProductRow));
+  const products = data.map((r) => mapProductRow(r as ProductRow));
+  return attachVariantsToProducts(products);
 }
 
 export async function getProductsByCategoryIds(categoryIds: string[]): Promise<Product[]> {
@@ -420,5 +437,21 @@ export async function getProductsByCategoryIds(categoryIds: string[]): Promise<P
     .order("name");
 
   if (error || !data) return [];
-  return data.map((r) => mapProductRow(r as ProductRow));
+  const products = data.map((r) => mapProductRow(r as ProductRow));
+  return attachVariantsToProducts(products);
+}
+
+async function attachVariantsToProducts(products: Product[]): Promise<Product[]> {
+  const parentIds = products.map((p) => p.id);
+  const allChildren = await getChildProductsByParentIds(parentIds);
+  const childrenByParentId = new Map<string, Product[]>();
+  for (const child of allChildren) {
+    const pid = child.parent_product_id ?? "";
+    if (!childrenByParentId.has(pid)) childrenByParentId.set(pid, []);
+    childrenByParentId.get(pid)!.push(child);
+  }
+  return products.map((p) => ({
+    ...p,
+    variants: childrenByParentId.get(p.id) ?? [],
+  }));
 }

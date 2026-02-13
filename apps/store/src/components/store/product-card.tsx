@@ -6,11 +6,22 @@ import { Button } from "@/components/ui/button";
 
 const FALLBACK_IMAGE = "https://images.unsplash.com/photo-1505740420928-5e560c06d30e";
 
+function getMinVariantPrice(variants: Product[] | undefined): number | null {
+  if (!variants?.length) return null;
+  const prices = variants
+    .map((v) => v.price)
+    .filter((p): p is number => p != null && p > 0);
+  return prices.length ? Math.min(...prices) : null;
+}
+
 export function ProductCard({ product }: { product: Product }) {
   const imageUrl = product.image_url ?? FALLBACK_IMAGE;
-  const priceLabel =
-    product.price != null && product.price > 0
-      ? `$${product.price.toLocaleString("es-AR")}`
+  const hasDirectPrice = product.price != null && product.price > 0;
+  const minVariantPrice = getMinVariantPrice(product.variants);
+  const priceLabel = hasDirectPrice
+    ? `$${product.price!.toLocaleString("es-AR")}`
+    : minVariantPrice != null
+      ? `desde $${minVariantPrice.toLocaleString("es-AR")}`
       : "Consultar";
 
   return (
