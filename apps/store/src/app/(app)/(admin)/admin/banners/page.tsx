@@ -10,6 +10,7 @@ import { DeleteBannerButton } from "@/components/admin/delete-banner-button";
 export const revalidate = 0;
 
 const positionLabels: Record<Banner["position"], string> = {
+  category: "Categoría",
   home_top: "Home arriba",
   home_middle: "Home medio",
   home_bottom: "Home abajo",
