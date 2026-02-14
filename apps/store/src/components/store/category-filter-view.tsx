@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import type { Category, Product } from "@/types";
 import { ProductList } from "@/components/store/product-list";
+import { BannerImage } from "@/components/store/banner-image";
 
 type CategoryFilterViewProps = {
   category: Category;
@@ -66,8 +67,16 @@ export function CategoryFilterView({ category, products }: CategoryFilterViewPro
     });
   }, [products, selectedIds, options]);
 
+  const showBanner = !category.parent_id && category.banner;
+
   return (
-    <div className="grid gap-8 md:grid-cols-[240px_1fr]">
+    <div className="space-y-6">
+      {showBanner && (
+        <div className="w-full overflow-hidden rounded-lg">
+          <BannerImage banner={category.banner!} className="aspect-[1920/500] w-full" />
+        </div>
+      )}
+      <div className="grid gap-8 md:grid-cols-[240px_1fr]">
       <aside className="space-y-4 rounded-lg border bg-muted/20 p-4">
         <div>
           <p className="text-xs uppercase tracking-wide text-muted-foreground">Categoría</p>
@@ -117,6 +126,7 @@ export function CategoryFilterView({ category, products }: CategoryFilterViewPro
             No hay productos disponibles en esta categoría.
           </p>
         )}
+      </div>
       </div>
     </div>
   );

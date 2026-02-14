@@ -6,6 +6,8 @@ export const categorySchema = z.object({
   description: z.string().optional().or(z.literal("")),
   parent_id: z.string().optional().or(z.literal("")).nullable(),
   is_active: z.boolean(),
+  /** URL de imagen de banner (solo categorías raíz). Se sube al bucket y se crea/actualiza un banner. */
+  banner_image_url: z.string().optional().or(z.literal("")),
   // SEO
   meta_title: z.string().optional().or(z.literal("")),
   meta_description: z.string().optional().or(z.literal("")),

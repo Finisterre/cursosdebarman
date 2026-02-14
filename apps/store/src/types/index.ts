@@ -61,6 +61,9 @@ export type Category = {
   is_active: boolean;
   position?: number;
   children?: Category[];
+  /** Banner opcional (solo categorías raíz). */
+  banner_id?: string | null;
+  banner?: Banner | null;
   /** SEO */
   meta_title?: string | null;
   meta_description?: string | null;
@@ -145,7 +148,7 @@ export type Banner = {
   mobile_image_url?: string | null;
   link_url?: string | null;
   link_text?: string | null;
-  position: "home_top" | "home_middle" | "home_bottom" | "hero" | "sidebar";
+  position: "home_top" | "home_middle" | "home_bottom" | "hero" | "sidebar" | "category";
   type: "image" | "slider" | "promo" | "video";
   display_order: number;
   is_active: boolean;

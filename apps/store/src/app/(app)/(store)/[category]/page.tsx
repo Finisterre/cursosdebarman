@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { getCategoryDescendantsBySlug, getCategoryBySlug } from "@/lib/categories";
+import { getCategoryDescendantsBySlug, getCategoryBySlug, getCategoryBySlugWithBanner } from "@/lib/categories";
 import { getProductsByCategoryIds } from "@/lib/products";
 import { getSiteSettings } from "@/lib/site-settings";
 import { absoluteUrl } from "@/lib/seo";
@@ -65,7 +65,11 @@ export async function generateMetadata({ params }: CategoryPageProps): Promise<M
 
 export default async function CategoryPage({ params }: CategoryPageProps) {
   const { category: categorySlug } = await params;
-  const { category, ids } = await getCategoryDescendantsBySlug(categorySlug);
+  const [descendantsResult, categoryWithBanner] = await Promise.all([
+    getCategoryDescendantsBySlug(categorySlug),
+    getCategoryBySlugWithBanner(categorySlug),
+  ]);
+  const { category, ids } = descendantsResult;
 
   if (!category || !category.is_active) {
     notFound();
@@ -77,7 +81,10 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
     <>
       <Breadcrumb />
       <article aria-label={`Categoría: ${category.name}`}>
-        <CategoryFilterView category={category} products={products} />
+        <CategoryFilterView
+          category={categoryWithBanner ?? category}
+          products={products}
+        />
       </article>
     </>
   );
