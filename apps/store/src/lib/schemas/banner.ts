@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-const positionEnum = z.enum(["home_top", "home_middle", "home_bottom", "hero", "sidebar"]);
+const positionEnum = z.enum(["home_top", "home_middle", "home_bottom", "hero", "sidebar", "category"]);
 const typeEnum = z.enum(["image", "slider", "promo", "video"]);
 
 export const bannerSchema = z.object({

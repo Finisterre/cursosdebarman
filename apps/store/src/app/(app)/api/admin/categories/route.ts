@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { categorySchema } from "@/lib/schemas/category";
 import { supabaseAdmin } from "@/lib/supabase/admin";
+import { createBanner, updateBanner, deleteBanner } from "@/lib/banners";
 
 type CategoryPayload = {
   id?: string;
@@ -9,6 +10,7 @@ type CategoryPayload = {
   description?: string;
   parent_id?: string | null;
   is_active: boolean;
+  banner_image_url?: string;
   meta_title?: string | null;
   meta_description?: string | null;
   meta_keywords?: string | null;
@@ -40,6 +42,21 @@ export async function POST(request: Request) {
 
   const { description, parentId } = normalizeCategory(parsed.data);
 
+  let bannerId: string | null = null;
+  const bannerUrl = (parsed.data.banner_image_url ?? "").trim();
+  const isRoot = parentId === null;
+  if (isRoot && bannerUrl) {
+    const created = await createBanner({
+      title: parsed.data.name,
+      image_url: bannerUrl,
+      position: "category",
+      type: "image",
+      display_order: 0,
+      is_active: true,
+    });
+    if (created.ok && created.id) bannerId = created.id;
+  }
+
   const { data, error } = await supabaseAdmin
     .from("categories")
     .insert({
@@ -48,6 +65,7 @@ export async function POST(request: Request) {
       description,
       parent_id: parentId,
       is_active: parsed.data.is_active,
+      banner_id: bannerId,
       meta_title: (parsed.data.meta_title?.trim() || null) ?? null,
       meta_description: (parsed.data.meta_description?.trim() || null) ?? null,
       meta_keywords: (parsed.data.meta_keywords?.trim() || null) ?? null,
@@ -88,6 +106,49 @@ export async function PUT(request: Request) {
   }
 
   const { description, parentId } = normalizeCategory(parsed.data);
+  const isRoot = parentId === null;
+  const bannerUrl = (parsed.data.banner_image_url ?? "").trim();
+
+  const { data: existing } = await supabaseAdmin
+    .from("categories")
+    .select("banner_id")
+    .eq("id", payload.id)
+    .single();
+
+  const currentBannerId = (existing as { banner_id: string | null } | null)?.banner_id ?? null;
+  let newBannerId: string | null = isRoot ? currentBannerId : null;
+
+  if (isRoot) {
+    if (bannerUrl) {
+      if (currentBannerId) {
+        await updateBanner(currentBannerId, {
+          title: parsed.data.name,
+          image_url: bannerUrl,
+          position: "category",
+          type: "image",
+          display_order: 0,
+          is_active: true,
+        });
+        newBannerId = currentBannerId;
+      } else {
+        const created = await createBanner({
+          title: parsed.data.name,
+          image_url: bannerUrl,
+          position: "category",
+          type: "image",
+          display_order: 0,
+          is_active: true,
+        });
+        if (created.ok && created.id) newBannerId = created.id;
+      }
+    } else if (currentBannerId) {
+      await deleteBanner(currentBannerId);
+      newBannerId = null;
+    }
+  } else if (currentBannerId) {
+    await deleteBanner(currentBannerId);
+    newBannerId = null;
+  }
 
   const { error } = await supabaseAdmin
     .from("categories")
@@ -97,6 +158,7 @@ export async function PUT(request: Request) {
       description,
       parent_id: parentId,
       is_active: parsed.data.is_active,
+      banner_id: newBannerId,
       meta_title: (parsed.data.meta_title?.trim() || null) ?? null,
       meta_description: (parsed.data.meta_description?.trim() || null) ?? null,
       meta_keywords: (parsed.data.meta_keywords?.trim() || null) ?? null,

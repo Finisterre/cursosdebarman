@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, useRef } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import type { CategoryFormValues } from "@/lib/schemas/category";
@@ -12,6 +12,8 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "@/components/ui/use-toast";
 import { SEOFormSection } from "@/components/admin/seo-form-section";
+import { uploadBannerImage } from "@/lib/uploadBannerImage";
+import Image from "next/image";
 
 type CategoryFormProps = {
   categories: Category[];
@@ -42,6 +44,8 @@ export function CategoryForm({ categories, initialValues, categoryId }: Category
   const [isSubmitting, setIsSubmitting] = useState(false);
   const options = useMemo(() => flattenCategories(categories), [categories]);
 
+  const [uploadingBanner, setUploadingBanner] = useState(false);
+  const bannerInputRef = useRef<HTMLInputElement>(null);
   const form = useForm<CategoryFormValues>({
     resolver: zodResolver(categorySchema),
     defaultValues: initialValues ?? {
@@ -50,6 +54,7 @@ export function CategoryForm({ categories, initialValues, categoryId }: Category
       description: "",
       parent_id: "",
       is_active: true,
+      banner_image_url: "",
       meta_title: "",
       meta_description: "",
       meta_keywords: "",
@@ -58,6 +63,26 @@ export function CategoryForm({ categories, initialValues, categoryId }: Category
       no_index: false,
     }
   });
+
+  const parentId = form.watch("parent_id");
+  const isRootCategory = !parentId || parentId === "";
+  const bannerImageUrl = form.watch("banner_image_url");
+
+  const handleBannerUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploadingBanner(true);
+    try {
+      const url = await uploadBannerImage(file);
+      form.setValue("banner_image_url", url);
+      toast({ title: "Imagen subida" });
+    } catch (err) {
+      toast({ title: "Error al subir la imagen", variant: "destructive" });
+    } finally {
+      setUploadingBanner(false);
+      e.target.value = "";
+    }
+  };
 
   return (
     <form
@@ -133,6 +158,55 @@ export function CategoryForm({ categories, initialValues, categoryId }: Category
         <input type="checkbox" {...form.register("is_active")} />
         Activa
       </label>
+
+      {isRootCategory && (
+        <div className="space-y-2">
+          <Label>Banner (solo categorías raíz)</Label>
+          <input
+            ref={bannerInputRef}
+            type="file"
+            accept="image/*"
+            className="hidden"
+            onChange={handleBannerUpload}
+          />
+          {bannerImageUrl ? (
+            <div className="space-y-2">
+              <div className="relative h-32 w-full max-w-md overflow-hidden rounded-md border bg-muted">
+                <Image src={bannerImageUrl} alt="Banner" fill className="object-cover" sizes="400px" />
+              </div>
+              <div className="flex gap-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  disabled={uploadingBanner}
+                  onClick={() => bannerInputRef.current?.click()}
+                >
+                  {uploadingBanner ? "Subiendo…" : "Cambiar imagen"}
+                </Button>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  className="text-destructive"
+                  onClick={() => form.setValue("banner_image_url", "")}
+                >
+                  Quitar
+                </Button>
+              </div>
+            </div>
+          ) : (
+            <Button
+              type="button"
+              variant="outline"
+              disabled={uploadingBanner}
+              onClick={() => bannerInputRef.current?.click()}
+            >
+              {uploadingBanner ? "Subiendo…" : "Subir imagen de banner"}
+            </Button>
+          )}
+        </div>
+      )}
 
       <SEOFormSection
         form={form}

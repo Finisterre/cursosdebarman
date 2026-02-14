@@ -1,6 +1,6 @@
 import { supabaseServer } from "@/lib/supabase/server";
 import { supabaseAdmin } from "@/lib/supabase/admin";
-import type { Category } from "@/types";
+import type { Category, Banner } from "@/types";
 
 type CategoryRow = {
   id: string;
@@ -9,6 +9,7 @@ type CategoryRow = {
   description: string | null;
   parent_id: string | null;
   is_active: boolean;
+  banner_id?: string | null;
   meta_title?: string | null;
   meta_description?: string | null;
   meta_keywords?: string | null;
@@ -18,7 +19,35 @@ type CategoryRow = {
   updated_at?: string | null;
 };
 
-function mapCategory(row: CategoryRow): Category {
+type BannerRow = {
+  id: string;
+  image_url: string;
+  title?: string;
+  [key: string]: unknown;
+};
+
+function mapBanner(row: BannerRow | null): Banner | null {
+  if (!row || !row.id) return null;
+  return {
+    id: row.id,
+    title: row.title ?? "",
+    subtitle: null,
+    image_url: row.image_url,
+    mobile_image_url: null,
+    link_url: null,
+    link_text: null,
+    position: "category",
+    type: "image",
+    display_order: 0,
+    is_active: true,
+    show_title: false,
+    created_at: "",
+    updated_at: "",
+  };
+}
+
+function mapCategory(row: CategoryRow & { banners?: BannerRow | null }): Category {
+  const hasBannerJoin = row && "banners" in row && row.banners;
   return {
     id: row.id,
     name: row.name,
@@ -26,6 +55,8 @@ function mapCategory(row: CategoryRow): Category {
     description: row.description ?? undefined,
     parent_id: row.parent_id ?? null,
     is_active: row.is_active,
+    banner_id: row.banner_id ?? null,
+    banner: hasBannerJoin ? mapBanner(row.banners as BannerRow) : null,
     meta_title: row.meta_title ?? null,
     meta_description: row.meta_description ?? null,
     meta_keywords: row.meta_keywords ?? null,
@@ -65,9 +96,9 @@ export async function getCategories(): Promise<Category[]> {
 }
 
 export async function getCategoryById(id: string): Promise<Category | null> {
-  const { data, error } = await supabaseServer
+  const { data, error } = await supabaseAdmin
     .from("categories")
-    .select("*")
+    .select("*, banners(*)")
     .eq("id", id)
     .single();
 
@@ -75,7 +106,7 @@ export async function getCategoryById(id: string): Promise<Category | null> {
     return null;
   }
 
-  return mapCategory(data as CategoryRow);
+  return mapCategory(data as CategoryRow & { banners?: BannerRow | null });
 }
 
 export async function getCategoryBySlug(slug: string): Promise<Category | null> {
@@ -90,6 +121,21 @@ export async function getCategoryBySlug(slug: string): Promise<Category | null> 
   }
 
   return mapCategory(data as CategoryRow);
+}
+
+/** Categoría por slug con banner (para la página de categoría en la store). */
+export async function getCategoryBySlugWithBanner(slug: string): Promise<Category | null> {
+  const { data, error } = await supabaseServer
+    .from("categories")
+    .select("*, banners(*)")
+    .eq("slug", slug)
+    .single();
+
+  if (error || !data) {
+    return null;
+  }
+
+  return mapCategory(data as CategoryRow & { banners?: BannerRow | null });
 }
 
 export async function getRootCategories(): Promise<Category[]> {

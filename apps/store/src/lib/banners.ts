@@ -79,6 +79,7 @@ export async function getBannersForStore(
   }
   const list = (data ?? []).map((r) => mapRow(r as BannerRow));
   return list.filter((b) => {
+    if (b.position === "category") return false;
     if (b.starts_at && b.starts_at > now) return false;
     if (b.ends_at && b.ends_at < now) return false;
     return true;
