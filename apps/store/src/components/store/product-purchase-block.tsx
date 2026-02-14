@@ -21,11 +21,12 @@ export function ProductPurchaseBlock({ product, onSelectChild }: ProductPurchase
 
   const variants = product.variants ?? [];
   const hasVariants = variants.length > 0;
-  const effectivePrice = selectedChild?.price ?? product.price;
+  const hasSale = product.sale_price != null && product.sale_price > 0;
+  const regularPrice = product.price ?? null;
+  const sellingPrice = hasSale ? product.sale_price! : (product.price ?? null);
   const effectiveStock = selectedChild?.stock ?? product.stock;
   const mustSelectVariant = hasVariants && !selectedChild;
   const outOfStock = effectiveStock != null && effectiveStock <= 0;
-  const sellableId = selectedChild?.id ?? product.id;
 
   return (
     <div className="space-y-4">
@@ -37,9 +38,14 @@ export function ProductPurchaseBlock({ product, onSelectChild }: ProductPurchase
         />
       ) : (
         <div className="flex flex-wrap items-baseline gap-2">
+          {hasSale && regularPrice != null && regularPrice > 0 && (
+            <p className="text-lg font-semibold text-muted-foreground line-through">
+              ${regularPrice.toLocaleString("es-AR")}
+            </p>
+          )}
           <p className="text-lg font-semibold">
-            {effectivePrice != null && effectivePrice > 0
-              ? `$${effectivePrice.toLocaleString("es-AR")}`
+            {sellingPrice != null && sellingPrice > 0
+              ? `$${sellingPrice.toLocaleString("es-AR")}`
               : "Consultar"}
           </p>
           {effectiveStock != null && (

@@ -57,6 +57,7 @@ export function ProductForm({
     defaultValues: initialValues ?? {
       name: "",
       price: 0,
+      sale_price: null as number | null,
       stock: 0,
       slug: "",
       description: "",
@@ -169,6 +170,16 @@ export function ProductForm({
         {form.formState.errors.price && (
           <p className="text-sm text-destructive">{form.formState.errors.price.message}</p>
         )}
+      </div>
+      <div className="space-y-2 w-1/4">
+        <Label htmlFor="sale_price">Precio oferta (opcional)</Label>
+        <Input
+          id="sale_price"
+          type="number"
+          min={0}
+          step={0.01}
+          {...form.register("sale_price")}
+        />
       </div>
       <div className="space-y-2 w-1/4">
         <Label htmlFor="stock">Stock</Label>

@@ -22,7 +22,12 @@ export function AddToCartButton({
   const [isAnimating, setIsAnimating] = useState(false);
 
   const productId = selectedChild?.id ?? product.id;
-  const price = selectedChild?.price ?? product.price ?? 0;
+  const hasSaleChild = selectedChild?.sale_price != null && selectedChild.sale_price > 0;
+  const hasSaleProduct = product.sale_price != null && product.sale_price > 0;
+  const price =
+    selectedChild != null
+      ? (hasSaleChild ? selectedChild.sale_price! : selectedChild.price) ?? 0
+      : (hasSaleProduct ? product.sale_price! : product.price) ?? 0;
   const name = product.name;
   const image_url = product.image_url ?? undefined;
   const sku = selectedChild?.sku ?? product.sku ?? undefined;

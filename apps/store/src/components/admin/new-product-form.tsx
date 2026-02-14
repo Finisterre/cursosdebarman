@@ -55,6 +55,7 @@ export function NewProductForm({
     defaultValues: {
       name: "",
       price: 0,
+      sale_price: null as number | null,
       slug: "",
       description: "",
       category_id: "",
@@ -114,6 +115,7 @@ export function NewProductForm({
             category_id: values.category_id || null,
             featured: values.featured,
             price: hasVariantSelection ? null : values.price ?? 0,
+            sale_price: hasVariantSelection ? null : values.sale_price ?? null,
             variantOptions: variantOptions ?? undefined,
             meta_title: values.meta_title || null,
             meta_description: values.meta_description || null,
@@ -143,6 +145,7 @@ export function NewProductForm({
                 id: currentProductId,
                 ...values,
                 price: hasVariantSelection ? null : values.price,
+                sale_price: hasVariantSelection ? null : values.sale_price ?? null,
                 image_url: imageUrlToSave,
               }),
             });
@@ -178,12 +181,26 @@ export function NewProductForm({
         </div>
         <div className="space-y-2 w-1/4">
           <Label htmlFor="price">Precio (producto simple)</Label>
-          <Input id="price" type="number" min={0} {...form.register("price")} />
+          <Input id="price" type="number" min={0} step={0.01} {...form.register("price")} />
           {hasVariantSelection && (
             <p className="text-xs text-muted-foreground">No aplica si usás variantes.</p>
           )}
           {form.formState.errors.price && (
             <p className="text-sm text-destructive">{form.formState.errors.price.message}</p>
+          )}
+        </div>
+        <div className="space-y-2 w-1/4">
+          <Label htmlFor="sale_price">Precio oferta (opcional)</Label>
+          <Input
+            id="sale_price"
+            type="number"
+            min={0}
+            step={0.01}
+            placeholder=""
+            {...form.register("sale_price")}
+          />
+          {hasVariantSelection && (
+            <p className="text-xs text-muted-foreground">No aplica si usás variantes.</p>
           )}
         </div>
         <div className="space-y-2 w-1/4">

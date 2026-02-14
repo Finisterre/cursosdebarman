@@ -15,6 +15,7 @@ export type CreateProductPayload = {
   category_id?: string | null;
   featured?: boolean;
   price?: number | null;
+  sale_price?: number | null;
   variantOptions?: Record<string, OptionByType[]> | null;
   meta_title?: string | null;
   meta_description?: string | null;
@@ -42,6 +43,7 @@ export async function createProductAction(
       slug: payload.slug.trim().toLowerCase().replace(/\s+/g, "-"),
       description: payload.description.trim(),
       price,
+      sale_price: payload.sale_price ?? null,
       category_id: payload.category_id ?? null,
       featured: payload.featured ?? false,
       meta_title: payload.meta_title?.trim() || null,

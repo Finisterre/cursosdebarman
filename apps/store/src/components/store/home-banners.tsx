@@ -37,6 +37,9 @@ export function HomeBanners({ banners, position, className }: HomeBannersProps) 
     );
   }
 
+
+  const aspect = list.length === 1 ? "aspect-[21/9]" : list.length === 2 ? "aspect-[1/1]" : list.length === 3 ? "aspect-[3/1]" : "aspect-[4/1]";
+
   const gridClass =
     list.length === 1
       ? "grid grid-cols-1 gap-4 w-full"
@@ -44,7 +47,9 @@ export function HomeBanners({ banners, position, className }: HomeBannersProps) 
         ? "grid grid-cols-1 md:grid-cols-2 gap-4"
         : list.length === 3
           ? "grid grid-cols-1 md:grid-cols-3 gap-4"
-          : "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4";
+          : list.length >= 4
+          ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4"
+          : "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4";
 
   return (
     <section className={cn(gridClass, className)}>
@@ -72,9 +77,11 @@ export function HomeBanners({ banners, position, className }: HomeBannersProps) 
               </div>
             </div>
           ) : (
-        
-              <BannerImage banner={b} className="w-full" />
-       
+            <>
+            
+          
+              <BannerImage banner={b} className="w-full" aspect={aspect}  />
+              </>
           )}
         </div>
       ))}

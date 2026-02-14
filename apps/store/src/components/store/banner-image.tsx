@@ -3,13 +3,14 @@ import Link from "next/link";
 import type { Banner } from "@/types";
 import { cn } from "@/lib/utils";
 
-export function BannerImage({ banner, className }: { banner: Banner; className?: string }) {
+export function BannerImage({ banner, className, aspect }: { banner: Banner; className?: string; aspect?: string }) {
   const content = (
     <>
       <Image
         src={banner.image_url}
         alt={banner.title}
-        fill
+        width={1920}
+        height={500}
         className={cn("object-cover", className)}
         sizes="(max-width: 768px) 100vw, 1920px"
       />
@@ -29,10 +30,11 @@ export function BannerImage({ banner, className }: { banner: Banner; className?:
 
   if (banner.link_url) {
     return (
-      <Link href={banner.link_url as any} className="block relative w-full overflow-hidden rounded-lg aspect-[1920/500]">
+      <Link href={banner.link_url as any} className={cn("block relative overflow-hidden rounded-lg", aspect ? `aspect-[${aspect}]` : "")}>
+       
         {content}
       </Link>
     );
   }
-  return <div className="relative w-full overflow-hidden rounded-lg aspect-[1920/500]">{content}</div>;
+  return <div className="relative overflow-hidden rounded-lg">{content}</div>;
 }

@@ -55,6 +55,7 @@ export default async function EditProductPage({ params }: EditProductPageProps) 
         initialValues={{
           name: product.name,
           price: product.price ?? 0,
+          sale_price: product.sale_price ?? null,
           stock: product.stock ?? 0,
           slug: product.slug,
           description: product.description,

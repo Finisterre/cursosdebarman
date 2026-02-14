@@ -60,7 +60,14 @@ export function ProductVariantSelector({
     [variants, selectedByType]
   );
 
-  const displayPrice = matchingChild?.price ?? product.price ?? null;
+  const regularPrice = matchingChild?.price ?? product.price ?? null;
+  const hasSale =
+    (matchingChild?.sale_price != null && matchingChild.sale_price > 0) ||
+    (matchingChild == null && product.sale_price != null && product.sale_price > 0);
+  const sellingPrice =
+    matchingChild != null
+      ? (matchingChild.sale_price != null && matchingChild.sale_price > 0 ? matchingChild.sale_price : matchingChild.price) ?? null
+      : (product.sale_price != null && product.sale_price > 0 ? product.sale_price : product.price) ?? null;
   const displayStock = matchingChild?.stock ?? product.stock ?? null;
   const outOfStock = displayStock != null && displayStock <= 0;
 
@@ -77,9 +84,14 @@ export function ProductVariantSelector({
     <div className={cn("space-y-3", className)}>
       <div className="flex flex-wrap items-baseline gap-2">
         <span className="text-sm font-medium text-muted-foreground">Precio:</span>
+        {hasSale && regularPrice != null && regularPrice > 0 && (
+          <span className="text-lg font-semibold text-muted-foreground line-through">
+            ${regularPrice.toLocaleString("es-AR")}
+          </span>
+        )}
         <span className="text-lg font-semibold">
-          {displayPrice != null && displayPrice > 0
-            ? `$${displayPrice.toLocaleString("es-AR")}`
+          {sellingPrice != null && sellingPrice > 0
+            ? `$${sellingPrice.toLocaleString("es-AR")}`
             : matchingChild != null
               ? "Consultar"
               : "Elegí una opción"}

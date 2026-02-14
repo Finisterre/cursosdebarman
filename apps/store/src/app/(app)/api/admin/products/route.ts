@@ -6,6 +6,7 @@ type ProductPayload = {
   id?: string;
   name?: string;
   price?: number | null;
+  sale_price?: number | null;
   stock?: number | null | string;
   slug?: string;
   description?: string;
@@ -38,6 +39,7 @@ export async function POST(request: Request) {
     .insert({
       name: parsed.data.name,
       price: parsed.data.price ?? null,
+      sale_price: parsed.data.sale_price ?? null,
       slug: parsed.data.slug,
       description: parsed.data.description,
       image_url: payload.image_url ?? null,
@@ -83,6 +85,7 @@ export async function PUT(request: Request) {
   const updatePayload: Record<string, unknown> = {
     name: parsed.data.name,
     price: parsed.data.price ?? null,
+    sale_price: parsed.data.sale_price ?? null,
     slug: parsed.data.slug,
     description: parsed.data.description,
     image_url: payload.image_url ?? undefined,

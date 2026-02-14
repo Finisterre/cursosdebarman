@@ -205,6 +205,26 @@ export async function getChildProductsWithVariantValues(
   );
 }
 
+type PvvRow = {
+  variant_value_id: string;
+  variant_values: {
+    value: string;
+    variant_types: { id: string; name: string } | null;
+  } | null;
+};
+
+type PvvRowWithProductId = PvvRow & { product_id: string };
+
+function mapPvvRowToVariantValue(r: PvvRow): ProductVariantValue | null {
+  if (!r.variant_values) return null;
+  return {
+    variantTypeId: r.variant_values.variant_types?.id ?? "",
+    variantTypeName: r.variant_values.variant_types?.name ?? "",
+    valueId: r.variant_value_id,
+    value: r.variant_values.value,
+  };
+}
+
 async function getProductVariantValues(productId: string): Promise<ProductVariantValue[]> {
   const { data, error } = await supabaseServer
     .from("product_variant_values")
@@ -221,24 +241,41 @@ async function getProductVariantValues(productId: string): Promise<ProductVarian
     return [];
   }
 
-  type Row = {
-    variant_value_id: string;
-    variant_values: {
-      value: string;
-      variant_types: { id: string; name: string } | null;
-    } | null;
-  };
+  const rows = (data ?? []) as unknown as PvvRow[];
+  return rows.map(mapPvvRowToVariantValue).filter((v): v is ProductVariantValue => v != null);
+}
 
-  const rows = (data ?? []) as unknown as Row[];
+/** Variant values para muchos productos (para filtros en listado por categoría). */
+async function getProductVariantValuesBatch(
+  productIds: string[]
+): Promise<Map<string, ProductVariantValue[]>> {
+  if (productIds.length === 0) return new Map();
+  const { data, error } = await supabaseServer
+    .from("product_variant_values")
+    .select(
+      `
+      product_id,
+      variant_value_id,
+      variant_values(value, variant_types(id, name))
+    `
+    )
+    .in("product_id", productIds);
 
-  return rows
-    .filter((r): r is Row & { variant_values: NonNullable<Row["variant_values"]> } => !!r.variant_values)
-    .map((r) => ({
-      variantTypeId: r.variant_values.variant_types?.id ?? "",
-      variantTypeName: r.variant_values.variant_types?.name ?? "",
-      valueId: r.variant_value_id,
-      value: r.variant_values.value,
-    }));
+  if (error) {
+    console.error("[products] getProductVariantValuesBatch", error);
+    return new Map();
+  }
+
+  const rows = (data ?? []) as unknown as PvvRowWithProductId[];
+  const byProduct = new Map<string, ProductVariantValue[]>();
+  for (const r of rows) {
+    const v = mapPvvRowToVariantValue(r);
+    if (!v) continue;
+    const pid = r.product_id;
+    if (!byProduct.has(pid)) byProduct.set(pid, []);
+    byProduct.get(pid)!.push(v);
+  }
+  return byProduct;
 }
 
 export async function createSimpleProduct(data: {
@@ -246,6 +283,7 @@ export async function createSimpleProduct(data: {
   slug: string;
   description: string;
   price: number;
+  sale_price?: number | null;
   category_id?: string | null;
   image_url?: string | null;
   featured?: boolean;
@@ -265,6 +303,7 @@ export async function createSimpleProduct(data: {
       slug: data.slug,
       description: data.description,
       price: data.price,
+      sale_price: data.sale_price ?? null,
       category_id: data.category_id ?? null,
       image_url: data.image_url ?? null,
       featured: data.featured ?? false,
@@ -482,11 +521,16 @@ export async function getProductsByCategoryIds(categoryIds: string[]): Promise<P
 async function attachVariantsToProducts(products: Product[]): Promise<Product[]> {
   const parentIds = products.map((p) => p.id);
   const allChildren = await getChildProductsByParentIds(parentIds);
+  const childIds = allChildren.map((c) => c.id);
+  const variantValuesByProductId = await getProductVariantValuesBatch(childIds);
+
   const childrenByParentId = new Map<string, Product[]>();
   for (const child of allChildren) {
     const pid = child.parent_product_id ?? "";
+    const variantValues = variantValuesByProductId.get(child.id) ?? [];
+    const childWithValues = { ...child, variantValues };
     if (!childrenByParentId.has(pid)) childrenByParentId.set(pid, []);
-    childrenByParentId.get(pid)!.push(child);
+    childrenByParentId.get(pid)!.push(childWithValues);
   }
   return products.map((p) => ({
     ...p,

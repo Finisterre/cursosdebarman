@@ -4,6 +4,14 @@ import { useMemo, useState } from "react";
 import type { Category, Product } from "@/types";
 import { ProductList } from "@/components/store/product-list";
 import { BannerImage } from "@/components/store/banner-image";
+import {
+  VariantFilters,
+  filterProductsByVariantValues,
+} from "@/components/store/variant-filters";
+import {
+  PriceFilter,
+  filterProductsByPrice,
+} from "@/components/store/price-filter";
 
 type CategoryFilterViewProps = {
   category: Category;
@@ -48,8 +56,10 @@ function buildOptions(category: Category, depth = 0): CategoryOption[] {
 export function CategoryFilterView({ category, products }: CategoryFilterViewProps) {
   const options = useMemo(() => buildOptions(category), [category]);
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
+  const [selectedVariantValueIds, setSelectedVariantValueIds] = useState<string[]>([]);
+  const [priceRange, setPriceRange] = useState({ min: 0, max: 1_000_000 });
 
-  const filteredProducts = useMemo(() => {
+  const filteredByCategory = useMemo(() => {
     if (selectedIds.length === 0) {
       return products;
     }
@@ -66,6 +76,21 @@ export function CategoryFilterView({ category, products }: CategoryFilterViewPro
       return allowedIds.has(product.category_id);
     });
   }, [products, selectedIds, options]);
+
+  const filteredByVariant = useMemo(
+    () => filterProductsByVariantValues(filteredByCategory, selectedVariantValueIds),
+    [filteredByCategory, selectedVariantValueIds]
+  );
+
+  const filteredProducts = useMemo(
+    () =>
+      filterProductsByPrice(
+        filteredByVariant,
+        priceRange.min,
+        priceRange.max
+      ),
+    [filteredByVariant, priceRange.min, priceRange.max]
+  );
 
   const showBanner = !category.parent_id && category.banner;
 
@@ -110,6 +135,16 @@ export function CategoryFilterView({ category, products }: CategoryFilterViewPro
         
           )}
         </div>
+        <VariantFilters
+          products={filteredByCategory}
+          selectedValueIds={selectedVariantValueIds}
+          onSelectionChange={setSelectedVariantValueIds}
+        />
+        <PriceFilter
+          minPrice={priceRange.min}
+          maxPrice={priceRange.max}
+          onRangeChange={(min, max) => setPriceRange({ min, max })}
+        />
       </aside>
       <div className="space-y-6">
         <div>
