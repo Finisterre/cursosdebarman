@@ -9,13 +9,12 @@ export function BannerImage({ banner, className }: { banner: Banner; className?:
       <Image
         src={banner.image_url}
         alt={banner.title}
-        width={1200}
-        height={100}
+        fill
         className={cn("object-cover", className)}
-        sizes="(max-width: 768px) 100vw, 1200px"
+        sizes="(max-width: 768px) 100vw, 1920px"
       />
       {(banner.title || banner.subtitle) && (
-        <div className="absolute inset-0 flex flex-col items-center justify-center gap-1 bg-black/20 p-4 text-center">
+        <div className={cn("absolute inset-0 flex flex-col items-center justify-center gap-1 p-4 text-center", !banner.show_title && !banner.subtitle ? "bg-transparent" : "bg-black/20")}>
           {banner.title && banner.show_title && <span className="text-xl font-semibold text-white drop-shadow-md md:text-2xl">{banner.title}</span>}
           {banner.subtitle && <span className="text-sm text-white/90 drop-shadow md:text-base">{banner.subtitle}</span>}
           {banner.link_url && banner.link_text && (
@@ -30,10 +29,10 @@ export function BannerImage({ banner, className }: { banner: Banner; className?:
 
   if (banner.link_url) {
     return (
-      <Link href={banner.link_url as any} className="block relative overflow-hidden rounded-lg">
+      <Link href={banner.link_url as any} className="block relative w-full overflow-hidden rounded-lg aspect-[1920/500]">
         {content}
       </Link>
     );
   }
-  return <div className="relative overflow-hidden rounded-lg">{content}</div>;
+  return <div className="relative w-full overflow-hidden rounded-lg aspect-[1920/500]">{content}</div>;
 }

@@ -5,6 +5,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/badge";
 import type { Banner } from "@/types";
 import { AdminBreadcrumb } from "@/components/layout/admin-breadcrumb";
+import { DeleteBannerButton } from "@/components/admin/delete-banner-button";
 
 export const revalidate = 0;
 
@@ -65,10 +66,11 @@ export default async function AdminBannersPage() {
                     {b.is_active ? "Activo" : "Inactivo"}
                   </Badge>
                 </TableCell>
-                <TableCell>
+                <TableCell className="flex items-center gap-2">
                   <Button variant="outline" size="sm" asChild>
                     <Link href={`/admin/banners/${b.id}`}>Editar</Link>
                   </Button>
+                  <DeleteBannerButton bannerId={b.id} bannerTitle={b.title} />
                 </TableCell>
               </TableRow>
             ))

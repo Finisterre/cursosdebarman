@@ -1,9 +1,15 @@
 import type { Metadata } from "next";
+import { Dancing_Script } from "next/font/google";
 import { Container } from "@/components/layout/container";
 import { Header } from "@/components/layout/header";
 import { Footer } from "@/components/layout/footer";
 import { getRootCategories } from "@/lib/categories";
 import { getSiteSettings } from "@/lib/site-settings";
+
+const dancingScript = Dancing_Script({
+  subsets: ["latin"],
+  variable: "--font-dancing",
+});
 
 export const revalidate = 0;
 
@@ -24,7 +30,7 @@ export default async function StoreLayout({
 }) {
   const categories = await getRootCategories();
   return (
-    <div className="flex min-h-screen flex-col ">
+    <div className={`flex min-h-screen flex-col ${dancingScript.variable}  ` }>
       <Header categories={categories} />
       <main className="flex-1">
         <Container className="py-10">{children}</Container>

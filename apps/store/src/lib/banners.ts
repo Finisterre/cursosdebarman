@@ -185,3 +185,14 @@ export async function createBanner(input: {
   }
   return { ok: true, id: (data as { id: string })?.id };
 }
+
+/** Eliminar banner (admin). */
+export async function deleteBanner(id: string): Promise<{ ok: boolean; error?: string }> {
+  const { error } = await supabaseAdmin.from("banners").delete().eq("id", id);
+
+  if (error) {
+    console.error("[banners] deleteBanner", error);
+    return { ok: false, error: error.message };
+  }
+  return { ok: true };
+}

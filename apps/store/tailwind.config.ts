@@ -6,7 +6,8 @@ const config: Config = {
   theme: {
     extend: {
       fontFamily: {
-        sans: ["var(--font-sans)", "system-ui", "sans-serif"]
+        sans: ["var(--font-sans)", "system-ui", "sans-serif"],
+        dancing: ["var(--font-dancing)", "cursive"],
       },
       colors: {
         border: "hsl(var(--border))",

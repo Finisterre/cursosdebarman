@@ -20,9 +20,9 @@ export function Header({ categories }: HeaderProps) {
 
   return (
     <header className="border-b bg-black py-4">
-      <Container className="flex h-16 items-center justify-between">
-        <Link href="/" className="text-lg font-semibold" onClick={() => setMobileMenuOpen(false)}>
-          <Image src="/top-logo.svg" alt="Logo" width={200} height={200} />
+      <Container className="flex h-16 items-center justify-between  ">
+        <Link href="/" className="font-dancing text-4xl font-semibold text-white" onClick={() => setMobileMenuOpen(false)}>
+          Finisterre Studio
         </Link>
 
         {/* Desktop: nav + carrito */}

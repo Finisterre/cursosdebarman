@@ -49,7 +49,7 @@ export default async function StoreHomePage() {
 
 
   return (
-    <div className="space-y-12">
+    <div className="space-y-12 ">
       {bannersHero.length > 0 && (
         <HomeBanners banners={bannersHero} position="hero" />
       )}

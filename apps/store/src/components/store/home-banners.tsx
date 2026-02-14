@@ -30,7 +30,7 @@ export function HomeBanners({ banners, position, className }: HomeBannersProps) 
   if (isHero && list[0]) {
     return (
       <section className={cn("relative w-full", className)}>
-        <div className="relative aspect-[21/9] w-full overflow-hidden rounded-xl md:aspect-[3/1]">
+        <div className="relative  w-full overflow-hidden rounded-xl ">
           <BannerImage banner={list[0]} className="h-full w-full" />
         </div>
       </section>
