@@ -77,12 +77,17 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
 
   const products = await getProductsByCategoryIds(ids);
 
+  const categoryForView = {
+    ...category,
+    banner: categoryWithBanner?.banner ?? category.banner ?? null,
+  };
+
   return (
     <>
       <Breadcrumb />
       <article aria-label={`Categoría: ${category.name}`}>
         <CategoryFilterView
-          category={categoryWithBanner ?? category}
+          category={categoryForView}
           products={products}
         />
       </article>
