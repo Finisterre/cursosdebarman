@@ -32,13 +32,13 @@ export function ProductCard({ product }: { product: Product }) {
           src={imageUrl}
           alt={product.name}
           fill
-          className="object-cover"
+          className="object-contain"
           sizes="(max-width: 768px) 100vw, 33vw"
         />
       </div>
       <CardContent className="flex-1 py-4">
         <div className=" flex flex-col  items-center justify-between">
-          <h3 className="text-base font-semibold">{product.name}</h3>
+          <h3 className="text-base font-semibold text-center">{product.name}</h3>
           <span className="text-sm font-medium">{priceLabel}</span>
         </div>
         {/* <p className="text-sm text-muted-foreground">{product.description}</p> */}

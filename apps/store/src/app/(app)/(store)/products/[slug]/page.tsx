@@ -34,12 +34,20 @@ export async function generateMetadata({ params }: ProductDetailPageProps): Prom
     product.image_url?.trim() ||
     settings?.default_meta_image?.trim() ||
     undefined;
+  const keywordsRaw =
+    product.meta_keywords?.trim() ||
+    settings?.default_meta_keywords?.trim() ||
+    undefined;
+  const keywords = keywordsRaw
+    ? keywordsRaw.split(",").map((k) => k.trim()).filter(Boolean)
+    : undefined;
   const canonical = product.canonical_url?.trim() || absoluteUrl(`/products/${product.slug}`);
   const noIndex = product.no_index ?? false;
 
   return {
     title,
     description,
+    keywords,
     openGraph: {
       title: product.meta_title?.trim() || product.name,
       description: description ?? undefined,

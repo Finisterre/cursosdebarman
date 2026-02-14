@@ -9,6 +9,8 @@ export const revalidate = 0;
 export default async function AdminProductsPage() {
   const products = await getProducts();
 
+// TODO : delete product
+
   return (
     <div className="space-y-6">
       <AdminBreadcrumb items={[{ label: "Productos" }]} />

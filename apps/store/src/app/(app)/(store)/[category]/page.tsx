@@ -31,12 +31,20 @@ export async function generateMetadata({ params }: CategoryPageProps): Promise<M
     category.meta_image?.trim() ||
     settings?.default_meta_image?.trim() ||
     undefined;
+  const keywordsRaw =
+    category.meta_keywords?.trim() ||
+    settings?.default_meta_keywords?.trim() ||
+    undefined;
+  const keywords = keywordsRaw
+    ? keywordsRaw.split(",").map((k) => k.trim()).filter(Boolean)
+    : undefined;
   const canonical = category.canonical_url?.trim() || absoluteUrl(`/${category.slug}`);
   const noIndex = category.no_index ?? false;
 
   return {
     title,
     description,
+    keywords,
     openGraph: {
       title: category.meta_title?.trim() || category.name,
       description: description ?? undefined,

@@ -13,12 +13,14 @@ export async function generateMetadata(): Promise<Metadata> {
   const settings = await getSiteSettings();
   const title = settings?.default_meta_title ?? settings?.site_name ?? "fs-eshop";
   const description = settings?.default_meta_description ?? undefined;
+  const keywords = settings?.default_meta_keywords?.trim() || undefined;
   const image = settings?.default_meta_image ?? undefined;
   const url = absoluteUrl("/");
 
   return {
     title,
     description,
+    keywords: keywords ? keywords.split(",").map((k) => k.trim()).filter(Boolean) : undefined,
     openGraph: {
       title,
       description: description ?? undefined,
