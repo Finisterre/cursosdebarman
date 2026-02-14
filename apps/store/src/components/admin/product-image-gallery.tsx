@@ -166,6 +166,7 @@ export function ProductImageGallery({ productId, initialImages }: ProductImageGa
                 <Image
                   src={img.url}
                   alt=""
+                  title="fs-shop"
                   fill
                   className="object-cover"
                   sizes="(max-width: 768px) 50vw, 25vw"

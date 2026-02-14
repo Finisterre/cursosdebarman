@@ -61,6 +61,7 @@ export function HomeBanners({ banners, position, className }: HomeBannersProps) 
                 <Image
                   src={b.image_url}
                   alt={b.title}
+                  title={b.title || "fs-shop"}
                   fill
                   className="object-cover"
                   sizes="(max-width: 768px) 100vw, 33vw"

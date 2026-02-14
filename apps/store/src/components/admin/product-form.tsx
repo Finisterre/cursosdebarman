@@ -254,6 +254,7 @@ export function ProductForm({
           <img
             src={previewUrl}
             alt="Vista previa"
+            title={initialValues?.name || "fs-shop"}
             className="w-full rounded-md object-contain max-h-64"
           />
         )}

@@ -295,7 +295,7 @@ export function NewProductForm({
           onChange={(e) => setSelectedFile(e.target.files?.[0] ?? null)}
         />
         {previewUrl && (
-          <img src={previewUrl} alt="Vista previa" className="mt-2 w-full max-w-xs rounded-md object-contain" />
+          <img src={previewUrl} alt="Vista previa" title="fs-shop" className="mt-2 w-full max-w-xs rounded-md object-contain" />
         )}
       </div>
 

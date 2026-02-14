@@ -172,7 +172,7 @@ export function CategoryForm({ categories, initialValues, categoryId }: Category
           {bannerImageUrl ? (
             <div className="space-y-2">
               <div className="relative h-32 w-full max-w-md overflow-hidden rounded-md border bg-muted">
-                <Image src={bannerImageUrl} alt="Banner" fill className="object-cover" sizes="400px" />
+                <Image src={bannerImageUrl} alt="Banner" title="fs-shop" fill className="object-cover" sizes="400px" />
               </div>
               <div className="flex gap-2">
                 <Button

@@ -9,6 +9,7 @@ export function BannerImage({ banner, className, aspect }: { banner: Banner; cla
       <Image
         src={banner.image_url}
         alt={banner.title}
+        title={banner.title || "fs-shop"}
         width={1920}
         height={500}
         className={cn("object-cover", className)}

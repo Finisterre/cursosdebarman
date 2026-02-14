@@ -41,6 +41,7 @@ export function ProductGalleryWithThumbs({
         <Image
           src={displayUrl}
           alt={name}
+          title={name || "fs-shop"}
           fill
           className="object-contain"
           sizes="(max-width: 768px) 100vw, 50vw"
@@ -64,6 +65,7 @@ export function ProductGalleryWithThumbs({
               <Image
                 src={item.url}
                 alt=""
+                title={name || "fs-shop"}
                 fill
                 className="object-cover"
                 sizes="64px"

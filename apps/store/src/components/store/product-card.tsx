@@ -49,6 +49,7 @@ export function ProductCard({ product }: { product: Product }) {
         <Image
           src={imageUrl}
           alt={product.name}
+          title={product.name || "fs-shop"}
           fill
           className="object-contain"
           sizes="(max-width: 768px) 100vw, 33vw"

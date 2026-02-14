@@ -143,6 +143,7 @@ export function BannerForm({
             <img
               src={form.watch("image_url")}
               alt="Vista previa"
+              title={form.watch("title") || "fs-shop"}
               className="h-32 w-auto rounded-md border object-cover"
             />
             <Button
@@ -196,6 +197,7 @@ export function BannerForm({
             <img
               src={form.watch("mobile_image_url")}
               alt="Vista previa móvil"
+              title={form.watch("title") || "fs-shop"}
               className="h-32 w-auto rounded-md border object-cover"
             />
             <Button
