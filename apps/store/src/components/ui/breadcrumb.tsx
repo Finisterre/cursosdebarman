@@ -14,6 +14,8 @@ export type BreadcrumbProps = {
   root?: BreadcrumbItem;
   /** Primera posición después de la raíz (ej. "Productos" → "/products"). Si no se pasa, se infiere del path. */
   firstSegment?: BreadcrumbItem;
+  /** Lista completa de segmentos después de root (ej. [categoría padre, categoría hija, producto]). Si se pasa, se ignora firstSegment y la URL. */
+  segments?: BreadcrumbItem[];
   /** Segmentos extra con etiqueta personalizada. Clave = segmento en la URL (ej. "electronics"). */
   segmentLabels?: Record<string, string>;
   /** Si es true, no genera segmentos dinámicos desde la URL; solo muestra root + firstSegment. */
@@ -34,6 +36,7 @@ function slugToLabel(slug: string, segmentLabels?: Record<string, string>): stri
 export function Breadcrumb({
   root = { label: "Inicio", href: "/" },
   firstSegment,
+  segments: segmentsProp,
   segmentLabels,
   staticOnly = false,
   className,
@@ -44,21 +47,25 @@ export function Breadcrumb({
 
   const items: BreadcrumbItem[] = [root];
 
-  if (firstSegment && pathSegments.length > 0) {
-    items.push(firstSegment);
-  }
+  if (segmentsProp?.length) {
+    items.push(...segmentsProp);
+  } else {
+    if (firstSegment && pathSegments.length > 0) {
+      items.push(firstSegment);
+    }
 
-  if (!staticOnly && pathSegments.length > 0) {
-    let startIndex = firstSegment ? 1 : 0;
-    let basePath = firstSegment ? firstSegment.href : "";
+    if (!staticOnly && pathSegments.length > 0) {
+      let startIndex = firstSegment ? 1 : 0;
+      let basePath = firstSegment ? firstSegment.href : "";
 
-    for (let i = startIndex; i < pathSegments.length; i++) {
-      const segment = pathSegments[i];
-      basePath = basePath ? `${basePath}/${segment}` : `/${segment}`;
-      items.push({
-        label: slugToLabel(segment, segmentLabels),
-        href: basePath,
-      });
+      for (let i = startIndex; i < pathSegments.length; i++) {
+        const segment = pathSegments[i];
+        basePath = basePath ? `${basePath}/${segment}` : `/${segment}`;
+        items.push({
+          label: slugToLabel(segment, segmentLabels),
+          href: basePath,
+        });
+      }
     }
   }
 
@@ -70,14 +77,14 @@ export function Breadcrumb({
       {items.map((item, index) => {
         const isLast = index === items.length - 1;
         return (
-          <span key={item.href} className="flex items-center gap-1.5">
+          <span key={item.href ? `${item.href}-${index}` : `breadcrumb-${index}`} className="flex items-center gap-1.5">
             {index > 0 && (
               <span className="select-none text-muted-foreground/70" aria-hidden>
                 {separator}
               </span>
             )}
-            {isLast ? (
-              <span className="font-medium text-foreground" aria-current="page">
+            {isLast || !item.href ? (
+              <span className="font-medium text-foreground" aria-current={isLast ? "page" : undefined}>
                 {item.label}
               </span>
             ) : (

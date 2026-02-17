@@ -76,6 +76,19 @@ export default async function ProductDetailPage({ params }: ProductDetailPagePro
     notFound();
   }
 
+  const parentCategory = category?.parent_id
+    ? await getCategoryById(category.parent_id)
+    : null;
+
+  const breadcrumbSegments: { label: string; href: string }[] = [];
+  if (parentCategory) {
+    breadcrumbSegments.push({ label: parentCategory.name, href: `/${parentCategory.slug}` });
+  }
+  if (category) {
+    breadcrumbSegments.push({ label: category.name, href: `/${category.slug}` });
+  }
+  breadcrumbSegments.push({ label: product.name, href: "" });
+
   const parentImages = await getProductImages(product.id);
   const productWithImages: typeof product = {
     ...product,
@@ -93,13 +106,7 @@ export default async function ProductDetailPage({ params }: ProductDetailPagePro
   return (
     <>
       <ProductJsonLd product={product} />
-      <Breadcrumb
-        root={{ label: "Inicio", href: "/" }}
-        firstSegment={{
-          label: category?.name ?? "",
-          href: `/${category?.slug ?? ""}`,
-        }}
-      />
+      <Breadcrumb root={{ label: "Inicio", href: "/" }} segments={breadcrumbSegments} />
       <article itemScope itemType="https://schema.org/Product">
         <ProductDetailContent product={productWithImages}>
           <header className="space-y-2">
