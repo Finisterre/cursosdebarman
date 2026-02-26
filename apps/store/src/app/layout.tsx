@@ -6,6 +6,9 @@ import Script from "next/script";
 export const metadata: Metadata = {
   title: "fs-eshop",
   description: "Starter ecommerce con Next.js 14 y Supabase",
+  icons: {
+    icon: "/favicon.ico",
+  },
   verification: {
     google: "evn9q9PWfhB1yTJtYzHaj23ai8ygy6_oX6nDVT5pIQA",
   },
