@@ -26,11 +26,11 @@ export default async function AdminOrderDetailPage({ params }: AdminOrderDetailP
       <AdminBreadcrumb
         items={[
           { label: "Pedidos", href: "/admin/orders" },
-          { label: `Pedido ${order.id.slice(0, 8)}...` },
+          { label: `Pedido #${order.order_id}` },
         ]}
       />
       <div>
-        <h1 className="text-2xl font-semibold">Pedido {order.id}</h1>
+        <h1 className="text-2xl font-semibold">Pedido #{order.order_id}</h1>
         <p className="text-sm text-muted-foreground">Cliente: {order.customerName}</p>
       </div>
       <OrderStatusForm orderId={order.id} status={order.status} updateOrderStatusAction={updateOrderStatusAction} />

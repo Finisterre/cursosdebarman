@@ -1,5 +1,6 @@
 import { supabaseAdmin } from "@/lib/supabase/admin";
 import { createMercadoPagoPreference } from "@/lib/mercadopago";
+import { sendOrderConfirmationEmail } from "@/lib/email";
 import type { Order, OrderItem, OrderStatusHistoryEntry } from "@/types";
 
 /** Ítem del carrito para crear orden (snapshot: name, sku, unitPrice, quantity). */
@@ -257,6 +258,8 @@ export async function updateOrderFromMpReturn(params: MpReturnParams): Promise<{
   }
 
   const paymentStatus = params.status ?? params.collection_status ?? null;
+  console.log("[orders] updateOrderFromMpReturn", { orderId, paymentStatus, status: params.status, collection_status: params.collection_status });
+
   const newOrderStatus =
     paymentStatus === "approved"
       ? "paid"
@@ -298,6 +301,7 @@ export async function updateOrderFromMpReturn(params: MpReturnParams): Promise<{
 
   const previousStatus = (existing as { status?: string }).status ?? "pending";
   if (newOrderStatus === "paid" && previousStatus !== "paid") {
+    console.log("[orders] Pago confirmado (approved), procesando orden", orderId);
     await supabaseAdmin.from("order_status_history").insert({
       order_id: orderId,
       previous_status: previousStatus,
@@ -306,6 +310,39 @@ export async function updateOrderFromMpReturn(params: MpReturnParams): Promise<{
       note: "Pago confirmado (retorno desde Mercado Pago)"
     });
     await decrementStockForOrder(orderId);
+    // Email de confirmación al cliente cuando el pago está confirmado
+    const order = await getOrderById(orderId);
+    if (order?.payerEmail?.trim() && order.items?.length) {
+      console.log("[orders] Enviando email de confirmación a", order.payerEmail);
+      sendOrderConfirmationEmail({
+        orderId: order.id,
+        orderNumber: String(order.order_id ?? order.id),
+        toEmail: order.payerEmail.trim(),
+        payerName: order.customerName?.trim() || undefined,
+        items: order.items.map((item) => ({
+          productId: item.productId,
+          name: item.name,
+          unitPrice: item.price,
+          quantity: item.quantity,
+          sku: item.sku ?? undefined
+        })),
+        total: order.total
+      }).then((r) => {
+        if (r.ok) {
+          console.log("[orders] Email de confirmación enviado correctamente a", order.payerEmail);
+        } else {
+          console.error("[orders] Email de confirmación no enviado:", r.error);
+        }
+      });
+    } else {
+      console.warn("[orders] No se envía email: orden sin payerEmail o sin ítems", {
+        orderId,
+        hasPayerEmail: !!order?.payerEmail?.trim(),
+        itemsCount: order?.items?.length ?? 0
+      });
+    }
+  } else {
+    console.log("[orders] Estado no es paid o ya estaba paid", { orderId, newOrderStatus, previousStatus });
   }
 
   return { ok: true, orderId };
@@ -354,10 +391,12 @@ function mapOrderRow(row: Record<string, unknown>): Order {
   return {
     id: row.id as string,
     customerName: (row.payer_name as string) ?? "",
+    payerEmail: (row.payer_email as string) ?? undefined,
     total: Number(row.total) ?? 0,
     status: (status === "paid" || status === "fulfilled" || status === "cancelled" ? status : "pending") as Order["status"],
     createdAt: (row.created_at as string) ?? "",
-    items: []
+    items: [],
+    order_id: row.order_id != null ? String(row.order_id) : (row.id as string),
   };
 }
 

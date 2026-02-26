@@ -1,5 +1,24 @@
--- Idempotencia con timeout de 2 minutos: solo reutilizar orden si fue creada en los últimos 2 min.
--- Así el mismo cliente puede comprar el mismo producto en otra ocasión (nueva orden).
+-- Columna order_id en orders: número de pedido legible (1, 2, 3, ...)
+CREATE SEQUENCE IF NOT EXISTS order_display_no_seq;
+
+-- Si la columna no existe, crearla como bigint (si ya existe como bigint, no se modifica)
+ALTER TABLE orders ADD COLUMN IF NOT EXISTS order_id bigint UNIQUE;
+
+-- Rellenar órdenes existentes que tengan order_id NULL: asignar 1, 2, 3... por fecha
+WITH numbered AS (
+  SELECT id, row_number() OVER (ORDER BY created_at) AS rn
+  FROM orders
+  WHERE order_id IS NULL
+)
+UPDATE orders o
+SET order_id = numbered.rn
+FROM numbered
+WHERE o.id = numbered.id;
+
+-- Dejar el sequence en max(order_id) para que las nuevas órdenes sigan la numeración
+SELECT setval('order_display_no_seq', COALESCE((SELECT max(order_id) FROM orders), 0));
+
+-- RPC: al crear una nueva orden, asignar order_id con el siguiente número
 CREATE OR REPLACE FUNCTION create_order_with_items(
   p_user_id uuid,
   p_total numeric,
@@ -14,6 +33,7 @@ SECURITY DEFINER
 AS $$
 DECLARE
   v_order_id uuid;
+  v_order_display_id bigint;
   v_preference_id text;
   v_item jsonb;
   v_product_id uuid;
@@ -23,7 +43,6 @@ DECLARE
   v_unit_price numeric;
   v_subtotal numeric;
 BEGIN
-  -- Idempotencia: solo reutilizar si la orden es reciente (últimos 2 min)
   IF p_idempotency_key IS NOT NULL AND trim(p_idempotency_key) != '' THEN
     SELECT id, preference_id INTO v_order_id, v_preference_id
     FROM orders
@@ -39,8 +58,6 @@ BEGIN
         'is_existing', true
       );
     END IF;
-    -- Si la clave ya existe pero la orden es más vieja (ej. >2 min), devolver esa orden
-    -- para no violar UNIQUE y que el cliente pueda reutilizar el mismo link de pago
     SELECT id, preference_id INTO v_order_id, v_preference_id
     FROM orders
     WHERE idempotency_key = p_idempotency_key
@@ -55,8 +72,9 @@ BEGIN
     END IF;
   END IF;
 
-  -- Nueva orden (solo si no existe ninguna con esta idempotency_key)
-  INSERT INTO orders (user_id, status, total, payer_email, payer_name, idempotency_key, external_reference)
+  v_order_display_id := nextval('order_display_no_seq');
+
+  INSERT INTO orders (user_id, status, total, payer_email, payer_name, idempotency_key, external_reference, order_id)
   VALUES (
     p_user_id,
     'pending',
@@ -64,7 +82,8 @@ BEGIN
     NULLIF(trim(p_payer_email), ''),
     NULLIF(trim(p_payer_name), ''),
     NULLIF(trim(p_idempotency_key), ''),
-    NULL
+    NULL,
+    v_order_display_id
   )
   RETURNING id INTO v_order_id;
 

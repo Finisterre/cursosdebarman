@@ -46,7 +46,7 @@ export default async function AdminOrdersPage() {
             <TableRow key={order.id}>
               <TableCell className="font-medium">
                 <Link href={`/admin/orders/${order.id}`} className="hover:underline">
-                  {order.id}
+                  #{order.order_id}
                 </Link>
               </TableCell>
               <TableCell>{order.customerName}</TableCell>

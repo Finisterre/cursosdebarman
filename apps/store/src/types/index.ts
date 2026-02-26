@@ -96,6 +96,7 @@ export type OrderItem = {
   quantity: number;
   subtotal?: number;
   sku?: string | null;
+  order_id?: string | null;
 };
 
 export type OrderStatus = "pending" | "paid" | "fulfilled" | "cancelled";
@@ -112,7 +113,9 @@ export type OrderStatusHistoryEntry = {
 
 export type Order = {
   id: string;
+  order_id: string;
   customerName: string;
+  payerEmail?: string;
   total: number;
   status: OrderStatus;
   createdAt: string;

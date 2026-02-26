@@ -1,5 +1,5 @@
--- Idempotencia con timeout de 2 minutos: solo reutilizar orden si fue creada en los últimos 2 min.
--- Así el mismo cliente puede comprar el mismo producto en otra ocasión (nueva orden).
+-- Fix: si idempotency_key ya existe en la tabla (orden >2 min), devolver esa orden
+-- en lugar de intentar INSERT y fallar por UNIQUE (23505).
 CREATE OR REPLACE FUNCTION create_order_with_items(
   p_user_id uuid,
   p_total numeric,
@@ -23,7 +23,7 @@ DECLARE
   v_unit_price numeric;
   v_subtotal numeric;
 BEGIN
-  -- Idempotencia: solo reutilizar si la orden es reciente (últimos 2 min)
+  -- Idempotencia: reutilizar si la orden es reciente (últimos 2 min)
   IF p_idempotency_key IS NOT NULL AND trim(p_idempotency_key) != '' THEN
     SELECT id, preference_id INTO v_order_id, v_preference_id
     FROM orders
@@ -39,8 +39,7 @@ BEGIN
         'is_existing', true
       );
     END IF;
-    -- Si la clave ya existe pero la orden es más vieja (ej. >2 min), devolver esa orden
-    -- para no violar UNIQUE y que el cliente pueda reutilizar el mismo link de pago
+    -- Si la clave ya existe (orden más vieja), devolver esa orden para no violar UNIQUE
     SELECT id, preference_id INTO v_order_id, v_preference_id
     FROM orders
     WHERE idempotency_key = p_idempotency_key
@@ -55,7 +54,7 @@ BEGIN
     END IF;
   END IF;
 
-  -- Nueva orden (solo si no existe ninguna con esta idempotency_key)
+  -- Nueva orden
   INSERT INTO orders (user_id, status, total, payer_email, payer_name, idempotency_key, external_reference)
   VALUES (
     p_user_id,
