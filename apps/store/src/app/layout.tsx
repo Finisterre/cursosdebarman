@@ -7,7 +7,7 @@ export const metadata: Metadata = {
   title: "fs-eshop",
   description: "Starter ecommerce con Next.js 14 y Supabase",
   icons: {
-    icon: "/favicon.ico",
+    icon: [{ url: "/beacon-favicon.png", sizes: "48x37", type: "image/png" }],
   },
   verification: {
     google: "evn9q9PWfhB1yTJtYzHaj23ai8ygy6_oX6nDVT5pIQA",

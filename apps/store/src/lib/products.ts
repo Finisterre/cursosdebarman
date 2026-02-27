@@ -464,12 +464,18 @@ export async function createVariantProducts(
   return { ok: true };
 }
 
-export async function getProducts(): Promise<Product[]> {
-  const { data, error } = await supabaseServer
+export async function getProducts(opts?: { search?: string }): Promise<Product[]> {
+  const search = opts?.search?.trim();
+  let query = supabaseServer
     .from("products")
     .select("*")
-    .or("is_variant.eq.false,is_variant.is.null")
-    .order("name");
+    .or("is_variant.eq.false,is_variant.is.null");
+
+  if (search) {
+    query = query.ilike("name", `%${search.replace(/%/g, "\\%")}%`);
+  }
+
+  const { data, error } = await query.order("name");
 
   if (error || !data) return [];
   const rows = data.filter((r: ProductRow) => !(r as ProductRow).is_variant);
