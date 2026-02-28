@@ -113,7 +113,7 @@ export default async function ProductDetailPage({ params }: ProductDetailPagePro
             {product.featured && <Badge variant="secondary">Destacado</Badge>}
             <h1 className="text-3xl font-semibold">{product.name}</h1>
           </header>
-          <p className="text-muted-foreground">{product.description}</p>
+          <p className="text-muted-foreground whitespace-pre-wrap">{product.description}</p>
         </ProductDetailContent>
       </article>
       <section className="space-y-6 mt-20" aria-label="Productos destacados">
