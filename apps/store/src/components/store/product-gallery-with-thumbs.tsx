@@ -37,14 +37,14 @@ export function ProductGalleryWithThumbs({
 
   return (
     <div className="space-y-3">
-      <div className="relative aspect-square w-full overflow-hidden rounded-xl border bg-muted/30">
+      <div className="relative aspect-square  w-full overflow-hidden rounded-xl">
         <Image
           src={displayUrl}
           alt={name}
           title={name || "fs-shop"}
-          fill
-          className="object-contain"
-          sizes="(max-width: 768px) 100vw, 50vw"
+          width={281}
+          height={500}
+          className="object-cover mx-auto"
           priority
         />
       </div>

@@ -121,9 +121,9 @@ export function ProductVariantSelector({
                       type="button"
                       onClick={() => handleSelectValue(typeId, opt.valueId)}
                       className={cn(
-                        "rounded-md border px-3 py-2 text-sm transition-colors",
+                        "rounded-none bg-[#404040]  px-3 py-2 text-sm ",
                         isSelected
-                          ? "border-primary bg-primary/10 font-medium"
+                          ? "border-none bg-white/10 bg-[#008060] font-medium"
                           : "hover:bg-muted/50"
                       )}
                     >

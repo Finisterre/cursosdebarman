@@ -42,6 +42,7 @@ export function AddToCartButton({
     <Button
       disabled={disabled || price <= 0}
       onClick={handleClick}
+      className="bg-[#882c0b] text-white hover:bg-orange-500/70 rounded-full"
     >
       Agregar al carrito{" "}
       <ShoppingCart

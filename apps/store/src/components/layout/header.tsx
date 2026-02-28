@@ -21,12 +21,12 @@ export function Header({ categories }: HeaderProps) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   return (
-    <header className="border-b bg-black py-4">
+    <header className="border-b bg-black py-4  border-white ">
       <Container className="flex h-16 flex-wrap items-center justify-between gap-3 md:gap-4">
 
-      <Image src="/beacon-logo.png" alt="Finisterre Studio" width={80} height={80} className="shrink-0 mb-4" />
+      
         <Link href="/" className="font-dancing flex text-4xl font-semibold text-white shrink-0" onClick={() => setMobileMenuOpen(false)}>
-          Finisterre Studio 
+        <Image src="/top-logo.svg" alt="Finisterre Studio" width={200} height={80} className="shrink-0 mb-4" />
        
         </Link>
         <div className="hidden flex-1 max-w-xl md:flex md:justify-center mx-auto">
@@ -111,7 +111,7 @@ export function Header({ categories }: HeaderProps) {
           </div>
         </aside>
       </div>
-      <nav className="hidden items-center mx-auto container max-w-5xl gap-4 text-sm text-muted-foreground md:flex shrink-0 mt-4">
+      <nav className="hidden items-center mx-auto container max-w-6xl gap-4 text-sm text-muted-foreground md:flex shrink-0 mt-4 px-4">
           {categories.map((category) => (
             <Link
               key={category.id}

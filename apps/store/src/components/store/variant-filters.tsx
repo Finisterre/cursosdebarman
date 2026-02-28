@@ -74,7 +74,7 @@ export function VariantFilters({
 
   return (
     <div className="space-y-4">
-      <p className="text-xs uppercase tracking-wide text-muted-foreground">Variantes</p>
+      {/* <p className="text-xs uppercase tracking-wide text-white">Variantes</p> */}
       {options.map((opt) => (
         <div key={opt.typeId} className="space-y-2">
           <p className="text-sm font-medium">{opt.typeName}</p>

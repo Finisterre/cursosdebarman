@@ -110,10 +110,10 @@ export default async function ProductDetailPage({ params }: ProductDetailPagePro
       <article itemScope itemType="https://schema.org/Product">
         <ProductDetailContent product={productWithImages}>
           <header className="space-y-2">
-            {product.featured && <Badge variant="secondary">Destacado</Badge>}
-            <h1 className="text-3xl font-semibold">{product.name}</h1>
+            {/* {product.featured && <Badge variant="secondary">Destacado</Badge>} */}
+            {/* <h1 className="text-3xl ">{product.name}</h1> */}
           </header>
-          <p className="text-muted-foreground whitespace-pre-wrap">{product.description}</p>
+          <p className="text-white whitespace-pre-wrap">{product.description}</p>
         </ProductDetailContent>
       </article>
       <section className="space-y-6 mt-20" aria-label="Productos destacados">

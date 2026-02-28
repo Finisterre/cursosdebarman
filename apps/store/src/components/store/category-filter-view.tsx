@@ -57,7 +57,7 @@ export function CategoryFilterView({ category, products }: CategoryFilterViewPro
   const options = useMemo(() => buildOptions(category), [category]);
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [selectedVariantValueIds, setSelectedVariantValueIds] = useState<string[]>([]);
-  const [priceRange, setPriceRange] = useState({ min: 0, max: 1_000_000 });
+  const [priceRange, setPriceRange] = useState({ min: 0, max: 500_000 });
 
   const filteredByCategory = useMemo(() => {
     if (selectedIds.length === 0) {
@@ -96,22 +96,24 @@ export function CategoryFilterView({ category, products }: CategoryFilterViewPro
 
   return (
     <div className="space-y-6">
+       <h1 className="text-2xl font-semibold">{category.name}</h1>
       {showBanner && (
         <div className="w-full overflow-hidden rounded-lg">
           <BannerImage banner={category.banner!} className="aspect-[1920/500] w-full" />
         </div>
       )}
       <div className="grid gap-8 md:grid-cols-[240px_1fr]">
-      <aside className="space-y-4 rounded-lg border bg-muted/20 p-4">
-        <div>
-          <p className="text-xs uppercase tracking-wide text-muted-foreground">Categoría</p>
+      <aside className="space-y-4 rounded-lg  bg-muted/10 p-4">
+        {/* <div>
+          <p className="text-xs uppercase tracking-wide text-white">Categoría</p>
           <h2 className="text-base font-semibold">{category.name}</h2>
-        </div>
+        </div> */}
         <div className="space-y-2">
         {options.length > 0 ? (
           <>
-          <p className="text-xs uppercase tracking-wide text-muted-foreground">Subcategorías</p>
-         
+          <div className="flex items-center gap-2 border-b border-white/30 pb-2 uppercase mb-4">
+          <p className="text-lg uppercase tracking-wide text-white">Categorías</p>
+          </div>
             <div className="space-y-2">
               {options.map((option) => (
                 <label key={option.id} className="flex items-center gap-2 text-sm">
@@ -146,18 +148,18 @@ export function CategoryFilterView({ category, products }: CategoryFilterViewPro
           onRangeChange={(min, max) => setPriceRange({ min, max })}
         />
       </aside>
-      <div className="space-y-6">
+      <div className="">
         <div>
-          <h1 className="text-2xl font-semibold">{category.name}</h1>
+         
           {category.description && (
-            <p className="text-sm text-muted-foreground">{category.description}</p>
+            <p className="text-sm text-white">{category.description}</p>
           )}
         </div>
 
         {filteredProducts.length > 0 ? (
           <ProductList products={filteredProducts} />
         ) : (
-          <p className="text-sm text-muted-foreground">
+          <p className="text-sm text-white">
             No hay productos disponibles en esta categoría.
           </p>
         )}

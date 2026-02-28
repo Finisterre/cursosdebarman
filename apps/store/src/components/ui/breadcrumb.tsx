@@ -72,25 +72,25 @@ export function Breadcrumb({
   return (
     <nav
       aria-label="Breadcrumb"
-      className={cn("flex my-4 items-center gap-1.5 text-sm text-muted-foreground", className)}
+      className={cn("flex my-4 items-center gap-1.5 text-sm text-white font-bold", className)}
     >
       {items.map((item, index) => {
         const isLast = index === items.length - 1;
         return (
           <span key={item.href ? `${item.href}-${index}` : `breadcrumb-${index}`} className="flex items-center gap-1.5">
             {index > 0 && (
-              <span className="select-none text-muted-foreground/70" aria-hidden>
+              <span className="select-none text-white/70  hover:text-gray-400"  aria-hidden>
                 {separator}
               </span>
             )}
             {isLast || !item.href ? (
-              <span className="font-medium text-foreground" aria-current={isLast ? "page" : undefined}>
+              <span className="font-medium text-white" aria-current={isLast ? "page" : undefined}>
                 {item.label}
               </span>
             ) : (
               <Link
                 href={item.href as any}
-                className="transition-colors hover:text-foreground"
+                className="transition-colors hover:text-gray-400"
               >
                 {item.label}
               </Link>

@@ -45,18 +45,18 @@ export function ProductCard({ product }: { product: Product }) {
   return (
     <Card className="flex h-full flex-col overflow-hidden ">
       <Link href={`/products/${product.slug}`}>
-      <div className="relative h-56 w-full shrink-0">
+      <div className="w-full shrink-0">
         <Image
           src={imageUrl}
           alt={product.name}
           title={product.name || "fs-shop"}
-          fill
-          className="object-contain"
-          sizes="(max-width: 768px) 100vw, 33vw"
+          width={281}
+          height={500}
+          className="object-cover"
         />
       </div>
       <CardContent className="flex-1 py-4">
-        <div className=" flex flex-col  items-center justify-between">
+        <div className=" flex flex-col  items-start justify-start">
           <h3 className="text-base font-semibold text-center">{product.name}</h3>
           <div className="flex flex-wrap items-baseline justify-center gap-2 text-sm font-medium">
             {showStrike && regularPrice != null && regularPrice > 0 && (

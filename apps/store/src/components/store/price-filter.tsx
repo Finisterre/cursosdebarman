@@ -55,7 +55,7 @@ export function PriceFilter({
 
   return (
     <div className="space-y-4">
-      <p className="text-xs uppercase tracking-wide text-muted-foreground">Precio</p>
+      <p className="text-xs uppercase tracking-wide text-white">Precio</p>
       <div className="space-y-3">
         <Slider
           min={rangeMin}
@@ -69,7 +69,7 @@ export function PriceFilter({
             onRangeChange(Math.min(a, b), Math.max(a, b));
           }}
         />
-        <div className="flex justify-between text-sm text-muted-foreground">
+        <div className="flex justify-between text-sm text-white">
           <span>{formatPrice(minPrice)}</span>
           <span>{formatPrice(maxPrice)}</span>
         </div>

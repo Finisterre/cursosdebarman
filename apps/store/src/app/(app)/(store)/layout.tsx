@@ -32,8 +32,8 @@ export default async function StoreLayout({
   return (
     <div className={`flex min-h-screen flex-col ${dancingScript.variable}  ` }>
       <Header categories={categories} />
-      <main className="flex-1">
-        <Container className="py-10">{children}</Container>
+      <main className="flex-1 bg-black text-white">
+        <Container className="py-4 ">{children}</Container>
       </main>
       <Footer />
     </div>
