@@ -12,7 +12,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Breadcrumb } from "@/components/ui/breadcrumb";
-import { ArrowRight, Trash } from "lucide-react";
+import { ArrowRight,  Store, Trash } from "lucide-react";
 
 export default function CartPage() {
   const { items, removeItem, updateQuantity, subtotal } = useCart();
@@ -21,9 +21,9 @@ export default function CartPage() {
     return (
       <div className="space-y-4">
         <h1 className="text-2xl font-semibold">Carrito</h1>
-        <p className="text-muted-foreground">Tu carrito está vacío.</p>
-        <Button asChild variant="outline">
-          <Link href="/products">Explorar productos</Link>
+        <p className="text-white">Tu carrito está vacío.</p>
+        <Button asChild variant="outline" className="bg-orange-500 text-white rounded-full hover:bg-orange-500/80 border-none ">
+          <Link href="/products">Explorar productos <Store size={16} /></Link>
         </Button>
       </div>
     );
