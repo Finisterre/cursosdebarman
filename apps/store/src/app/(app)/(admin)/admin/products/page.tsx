@@ -3,13 +3,12 @@ import { getProducts } from "@/lib/products";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { AdminBreadcrumb } from "@/components/layout/admin-breadcrumb";
+import { DeleteProductButton } from "@/components/admin/delete-product-button";
 
 export const revalidate = 0;
 
 export default async function AdminProductsPage() {
   const products = await getProducts();
-
-// TODO : delete product
 
   return (
     <div className="space-y-6">
@@ -49,9 +48,15 @@ export default async function AdminProductsPage() {
               </TableCell>
               <TableCell>{product.slug}</TableCell>
               <TableCell>
-                <Button asChild variant="outline">
-                  <Link href={`/admin/products/${product.id}/edit`}>Editar</Link>
-                </Button>
+                <div className="flex items-center gap-2">
+                  <Button asChild variant="outline">
+                    <Link href={`/admin/products/${product.id}/edit`}>Editar</Link>
+                  </Button>
+                  <DeleteProductButton
+                    productId={product.id}
+                    productName={product.name}
+                  />
+                </div>
               </TableCell>
             </TableRow>
           ))}
