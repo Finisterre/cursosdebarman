@@ -91,7 +91,7 @@ export default async function CheckoutSuccessPage({
         </div>
       )}
 
-      <Button asChild>
+      <Button asChild className=" text-blackinline-flex items-center justify-center gap-2 whitespace-nowrap text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 h-10 px-4 py-2 bg-[#882c0b] text-white hover:bg-orange-500/70 rounded-full">
         <Link href="/products">Seguir comprando</Link>
       </Button>
     </div>

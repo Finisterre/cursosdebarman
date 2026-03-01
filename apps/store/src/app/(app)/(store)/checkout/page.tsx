@@ -31,7 +31,7 @@ export default function CheckoutPage() {
       <section className="space-y-6">
         <div>
           <h1 className="text-2xl font-semibold">Checkout</h1>
-          <p className="text-sm text-muted-foreground">
+          <p className="text-sm text-muted-foreground text-white">
             Completa los datos para finalizar la compra.
           </p>
         </div>
@@ -135,7 +135,7 @@ export default function CheckoutPage() {
               <p className="text-sm text-destructive">{form.formState.errors.address.message}</p>
             )}
           </div>
-          <Button type="submit" className="w-full">
+          <Button type="submit" className="w-full text-blackinline-flex items-center justify-center gap-2 whitespace-nowrap text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 h-10 px-4 py-2 bg-[#882c0b] text-white hover:bg-orange-500/70 rounded-full">
             {isSubmitting ? "Procesando..." : "Pagar con Mercado Pago"}
           </Button>
           {errorMessage && <p className="text-sm text-destructive">{errorMessage}</p>}

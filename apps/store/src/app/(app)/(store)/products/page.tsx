@@ -18,15 +18,11 @@ export default async function ProductsPage({ searchParams }: Props) {
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="text-2xl font-semibold">Productos</h1>
-          <p className="text-sm text-muted-foreground">
-            {q
-              ? `Resultados para "${q}".`
-              : "Catálogo completo listo para conectarse con Supabase."}
-          </p>
+         
         </div>
-        <Suspense fallback={<div className="h-10 w-full max-w-md animate-pulse rounded-md bg-muted" />}>
+        {/* <Suspense fallback={<div className="h-10 w-full max-w-md animate-pulse rounded-md bg-muted" />}>
           <ProductSearch defaultValue={q} />
-        </Suspense>
+        </Suspense> */}
       </div>
       {products.length === 0 ? (
         <p className="text-muted-foreground">

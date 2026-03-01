@@ -29,13 +29,15 @@ export function ProductDetailContent({ product, children }: ProductDetailContent
         images={galleryImages}
         name={product.name}
       />
+        
       <div className="space-y-4">
         <h1 className="text-3xl ">{product.name}</h1>
+        {children}
         <ProductPurchaseBlock
           product={product}
           onSelectChild={setSelectedChild}
         />
-        {children}
+    
       </div>
     </div>
   );

@@ -30,9 +30,14 @@ export function ProductCard({ product }: { product: Product }) {
   const sellingPrice = hasVariants
     ? getMinVariantPrice(product.variants)
     : (hasSale ? product.sale_price! : product.price ?? null);
-  const showStrike = hasVariants
+  const hasSalePriceSet = hasVariants
     ? (product.variants?.some((v) => v.sale_price != null && v.sale_price > 0) ?? false)
     : hasSale;
+  const showStrike =
+    hasSalePriceSet &&
+    regularPrice != null &&
+    sellingPrice != null &&
+    regularPrice > sellingPrice;
 
   const priceLabel = hasVariants
     ? sellingPrice != null

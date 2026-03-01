@@ -6,6 +6,7 @@ import type { Product } from "@/types";
 import { Button } from "@/components/ui/button";
 import { ShoppingCart } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { toast } from "@/components/ui/use-toast";
 
 type AddToCartButtonProps = {
   product: Product;
@@ -36,6 +37,31 @@ export function AddToCartButton({
     addItem({ productId, price, quantity: 1, name, image_url, sku });
     setIsAnimating(true);
     setTimeout(() => setIsAnimating(false), 300);
+
+    toast({
+      title: "Producto agregado al carrito",
+      description: (
+        <div className="flex items-center gap-3 mt-1">
+          {image_url ? (
+            <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-md border bg-muted">
+              <img
+                src={image_url}
+                alt={name}
+                className="object-cover h-full w-full"
+                width={48}
+                height={48}
+              />
+            </div>
+          ) : null}
+          <div className="flex flex-col min-w-0">
+            <span className="font-medium text-foreground truncate">{name}</span>
+            <span className="text-sm text-muted-foreground">
+              ${price.toLocaleString("es-AR")}
+            </span>
+          </div>
+        </div>
+      ),
+    });
   };
 
   return (

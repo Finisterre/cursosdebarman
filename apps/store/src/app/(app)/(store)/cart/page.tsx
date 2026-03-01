@@ -35,7 +35,7 @@ export default function CartPage() {
         root={{ label: "Inicio", href: "/" }}
         firstSegment={{ label: "Mi Carrito", href: "/cart" }}
       />
-      <h1 className="text-2xl font-semibold">Mi Carrito</h1>
+      <h1 className="text-2xl text-white font-semibold">Mi Carrito</h1>
       <Table>
         <TableHeader>
           <TableRow>
@@ -52,7 +52,7 @@ export default function CartPage() {
               <TableCell className="font-medium">{item.name ?? item.productId}</TableCell>
               <TableCell>
                 <input
-                  className="h-9 md:h-10 w-16 md:w-20 rounded-md border border-input bg-background px-1 md:px-2 text-sm"
+                  className="h-9 md:h-10 w-16 md:w-20 rounded-md text-black border border-input bg-background px-1 md:px-2 text-sm"
                   type="number"
                   min={1}
                   value={item.quantity}
@@ -66,7 +66,7 @@ export default function CartPage() {
                 ${(item.price * item.quantity).toLocaleString("es-AR")}
               </TableCell>
               <TableCell>
-                <Button variant="secondary" onClick={() => removeItem(item.productId)}>
+                <Button variant="secondary" className="bg-white text-black rounded-full hover:bg-white/80" onClick={() => removeItem(item.productId)}>
                  <span className="hidden md:block">Quitar</span> <Trash size={16} />
                 </Button>
               </TableCell>
@@ -74,11 +74,11 @@ export default function CartPage() {
           ))}
         </TableBody>
       </Table>
-      <div className="flex items-center justify-between rounded-lg border bg-muted/30 p-4">
-        <span className="text-sm text-muted-foreground">Total</span>
+      <div className="flex items-center justify-between rounded-lg  bg-white/30 p-4">
+        <span className="text-sm text-white">Total</span>
         <span className="text-lg font-semibold">${subtotal.toLocaleString("es-AR")}</span>
       </div>
-      <Button asChild>
+      <Button asChild className=" text-blackinline-flex items-center justify-center gap-2 whitespace-nowrap text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 h-10 px-4 py-2 bg-[#882c0b] text-white hover:bg-orange-500/70 rounded-full">
         <Link href="/checkout" className="group inline-flex items-center gap-2">
           Continuar con el Pago{" "}
           <ArrowRight size={16} className="transition-transform duration-200 group-hover:translate-x-1 group-hover:scale-110 group-hover:text-yellow-500" />
