@@ -197,12 +197,13 @@ export async function getChildProductsWithVariantValues(
   parentId: string
 ): Promise<Product[]> {
   const children = await getChildProducts(parentId);
-  return Promise.all(
+  const withValues = await Promise.all(
     children.map(async (child) => {
       const variantValues = await getProductVariantValues(child.id);
       return { ...child, variantValues };
     })
   );
+  return withValues.filter((c) => c.variantValues.length > 0);
 }
 
 type PvvRow = {
@@ -392,17 +393,27 @@ export async function createVariantProducts(
   const existingIds = (existing ?? []).map((r) => r.id);
 
   if (existingIds.length > 0) {
+    const { data: inOrders } = await supabaseAdmin
+      .from("order_items")
+      .select("product_id")
+      .in("product_id", existingIds);
+    const productIdsInOrders = [...new Set((inOrders ?? []).map((r) => r.product_id as string))];
+    const idsToDelete = existingIds.filter((id) => !productIdsInOrders.includes(id));
+
     await supabaseAdmin
       .from("product_variant_values")
       .delete()
       .in("product_id", existingIds);
-    const { error: deleteErr } = await supabaseAdmin
-      .from("products")
-      .delete()
-      .eq("parent_product_id", parentProductId);
-    if (deleteErr) {
-      console.error("[products] createVariantProducts delete children", deleteErr);
-      return { ok: false, error: deleteErr.message };
+
+    if (idsToDelete.length > 0) {
+      const { error: deleteErr } = await supabaseAdmin
+        .from("products")
+        .delete()
+        .in("id", idsToDelete);
+      if (deleteErr) {
+        console.error("[products] createVariantProducts delete children", deleteErr);
+        return { ok: false, error: deleteErr.message };
+      }
     }
   }
 
@@ -412,19 +423,34 @@ export async function createVariantProducts(
     .eq("id", parentProductId);
 
   const baseSlug = parent.slug;
-  const usedSlugs = new Set<string>();
+  const { data: remainingProducts } = await supabaseAdmin
+    .from("products")
+    .select("sku, slug")
+    .eq("parent_product_id", parentProductId);
+  const usedSlugs = new Set(
+    (remainingProducts ?? []).map((r) => r.slug).filter((s): s is string => Boolean(s))
+  );
+  const usedSkus = new Set(
+    (remainingProducts ?? []).map((r) => r.sku).filter((s): s is string => Boolean(s))
+  );
 
   for (const comb of combinations) {
-    const slug = baseSlug + "-" + comb.valueLabels.map((l) => l.toLowerCase().replace(/\s+/g, "-")).join("-");
-    let uniqueSlug = slug;
-    let n = 0;
+    const slugBase = baseSlug + "-" + comb.valueLabels.map((l) => l.toLowerCase().replace(/\s+/g, "-")).join("-");
+    let uniqueSlug = slugBase;
+    let slugN = 0;
     while (usedSlugs.has(uniqueSlug)) {
-      n++;
-      uniqueSlug = `${slug}-${n}`;
+      slugN++;
+      uniqueSlug = `${slugBase}-${slugN}`;
     }
     usedSlugs.add(uniqueSlug);
 
-    const sku = generateSku(baseSlug, comb.valueLabels);
+    let sku = generateSku(baseSlug, comb.valueLabels);
+    let skuN = 0;
+    while (usedSkus.has(sku)) {
+      skuN++;
+      sku = `${generateSku(baseSlug, comb.valueLabels)}-${skuN}`;
+    }
+    usedSkus.add(sku);
     const { data: childRow, error: insertErr } = await supabaseAdmin
       .from("products")
       .insert({
